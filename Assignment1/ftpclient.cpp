@@ -96,7 +96,10 @@ int main(int argc , char *argv[])
     int sockpi;
     std::string strReply;
     
-    //TODO  arg[1] can be a dns or an IP address.
+    std::cout << "We have " << argc << " arguments." << std::endl;
+    
+    //  TODO  arg[1] can be a dns or an IP address.
+    
     if (argc > 2)
         sockpi = createConnection(argv[1], atoi(argv[2]));
     if (argc == 2)
@@ -107,16 +110,27 @@ int main(int argc , char *argv[])
     std::cout << strReply  << std::endl;
     
     
-    strReply = requestReply(sockpi, "USER anonymous\r\n");
-    //TODO parse srtReply to obtain the status. 
-	// Let the system act according to the status and display
-    // friendly message to the user 
-	// You can see the ouput using std::cout << strReply  << std::endl;
+    strReply = requestReply(sockpi, "USER Anonymous\r\n");
+//    std::cout << "This is the strReply: " << strReply << std::endl;
     
+    //  TODO parse srtReply to obtain the status.
+    //  Let the system act according to the status and display
+    //  friendly message to the user
+    //  You can see the ouput using std::cout << strReply  << std::endl;
+    
+    //  Returns 500 if login not ok
+    if (strReply.find("331") == std::string::npos) {
+        std::cout << "Error login not ok. Message: " << strReply << std::endl;
+        return -1;
+    }
+    //  Returns 331 if login ok (search string for 331)
+    else{
+        std::cout << "Login ok. Message: " << strReply << std::endl;
+    }
     
     strReply = requestReply(sockpi, "PASS asa@asas.com\r\n");
         
-    //TODO implement PASV, LIST, RETR. 
+    //TODO implement PASV, LIST, RETR.
     // Hint: implement a function that set the SP in passive mode and accept commands.
     return 0;
 }
