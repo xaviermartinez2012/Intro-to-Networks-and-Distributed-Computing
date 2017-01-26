@@ -134,21 +134,47 @@ int main(int argc , char *argv[])
     // Hint: implement a function that set the SP in passive mode and accept commands.
 	
 	//request PASV
-	strReply = requestReply(sockpi , 'PASV');
+	strReply = requestReply(sockpi , "PASV");
 	
 	 if (strReply.find("227") != std::string::npos)
-		 // get the ip
+		 // TODO get the ip
 	 
-	 // Connect to ip
-	 
-	 
-	 // Let the user choose between LIST or RETR
-	 
-	 std:cout << "Enter LIST or RETR" << endl;
+	 // TODO Connect to ip
 	 
 	 
+	 // Let the user choose between LIST, RETR, QUIT
+	 // While loop so it keeps going until user inputs QUIT
+	 do{
+		std:cout << "Enter LIST, RETR, or QUIT" << endl;
+		std:string userInput;
+		getline(cin,userInput);
 	 
-		 
+		//Uppercase the userInput
+		for(unsigned int i = 0; i < userInput.length(); i++)
+			s[i] = toupper(s[l]);
+	
+
+		if (userInput == "LIST")
+		{
+			strReply = requestReply(sockpi , "LIST");
+			//TODO show the list
+		}
+		else if (userInput == "RETR")
+		{
+			//asks user for file name to retrieve
+			std:cout << "Enter file name to retrieve" << endl;	
+			getline(cin,userInput);
+			strReply = requestReply(sockpi , "RETR " + userInput);
+			
+		}
+		else if (userInput == "QUIT")
+		{
+			strReply = requestReply(sockpi , "QUIT");
+		}
+		
+	 } while (userInput != "QUIT");
+	 
+
 	
     return 0;
 }
