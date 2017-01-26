@@ -72,7 +72,7 @@ std::string reply(int s)
     int count;
     char buffer[BUFFER_LENGTH+1];
     
-    usleep(1000);
+    usleep(100000);
     do {
         count = recv(s, buffer, BUFFER_LENGTH, 0);
         buffer[count] = '\0';
@@ -110,7 +110,7 @@ int main(int argc , char *argv[])
     std::cout << strReply  << std::endl;
     
     
-    strReply = requestReply(sockpi, "USER Anonymous\r\n");
+    strReply = requestReply(sockpi, "USER anonymous\r\n");
 //    std::cout << "This is the strReply: " << strReply << std::endl;
     
     //  TODO parse srtReply to obtain the status.
@@ -119,36 +119,87 @@ int main(int argc , char *argv[])
     //  You can see the ouput using std::cout << strReply  << std::endl;
     
     //  Returns 500 if login not ok
-    if (strReply.find("331") == std::string::npos) {
-        std::cout << "Error login not ok. Message: " << strReply << std::endl;
-        return -1;
+    if (strReply.find("331") != std::string::npos) {
+        std::cout << "Login ok. Message: " << strReply << std::endl;
     }
     //  Returns 331 if login ok (search string for 331)
     else{
-        std::cout << "Login ok. Message: " << strReply << std::endl;
+        std::cout << "Error login not ok. Message: " << strReply << std::endl;
+        return -1;
     }
     
     strReply = requestReply(sockpi, "PASS asa@asas.com\r\n");
+    
+    // Returns 230 if password ok
+    if (strReply.find("230") != std::string::npos) {
+        std::cout << "Password ok. Message: " << strReply << std::endl;
+    }
+    // Returns 530 if password not ok
+    else{
+        std::cout << "Password not ok. Message: " << strReply << std::endl;
+        return -1;
+    }
         
     //TODO implement PASV, LIST, RETR.
     // Hint: implement a function that set the SP in passive mode and accept commands.
 	
 	//request PASV
-	strReply = requestReply(sockpi , 'PASV');
-	
-	 if (strReply.find("227") != std::string::npos)
-		 // get the ip
-	 
-	 // Connect to ip
-	 
-	 
-	 // Let the user choose between LIST or RETR
-	 
-	 std:cout << "Enter LIST or RETR" << endl;
-	 
-	 
-	 
-		 
+	strReply = requestReply(sockpi, "PASV\r\n");
+    std::cout << strReply << std::endl;
+    
+    // Returns 227 if passive mode ok
+    if (strReply.find("227") != std::string::npos) {
+        std::cout << "Entering passive mode... Message: " << strReply << std::endl;
+        
+        size_t start = strReply.find("(");
+        size_t end = strReply.find(")");
+        std::string IP_PORT = strReply.substr(start + 1, (end - start) - 1);
+        std::cout << "This is the IP_PORT: " << IP_PORT << std::endl;
+        
+        int A,B,C,D,a,b;
+        std::sscanf(IP_PORT.c_str(), "%d,%d,%d,%d,%d,%d", &A, &B, &C, &D, &a, &b);
+//      TODO perform bit shifting to obtain correct port number ((a << 8) | b)
+        std::cout << "Converted IP_PORT: " << A << "." << B << "." << C << "." << D << ":" << a << b << std::endl;
+        
+        return 0;
+    }
+    // Passive mode not ok
+    else{
+        std::cout << "Denied passive mode... Message: " << strReply << std::endl;
+        return -1;
+    }
+    
+    // Let the user choose between LIST, RETR, QUIT
+    // While loop so it keeps going until user inputs QUIT
+    std::string userInput;
+    do{
+        std::cout << "Enter LIST, RETR, or QUIT" << std::endl;
+        std::getline(std::cin,userInput);
+        
+        //Uppercase the userInput
+        for(unsigned int i = 0; i < userInput.length(); i++)
+            s[i] = toupper(s[l]);
+        
+        
+        if (userInput == "LIST")
+        {
+            strReply = requestReply(sockpi , "LIST");
+            //TODO show the list
+        }
+        else if (userInput == "RETR")
+        {
+            //asks user for file name to retrieve
+            std::cout << "Enter file name to retrieve" << std::endl;
+            std::getline(std::cin,userInput);
+            strReply = requestReply(sockpi , "RETR " + userInput);
+            
+        }
+        else if (userInput == "QUIT")
+        {
+            strReply = requestReply(sockpi , "QUIT");
+        }
+        
+    } while (userInput != "QUIT");
 	
     return 0;
 }
