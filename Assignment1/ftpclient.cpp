@@ -132,5 +132,23 @@ int main(int argc , char *argv[])
         
     //TODO implement PASV, LIST, RETR.
     // Hint: implement a function that set the SP in passive mode and accept commands.
+	
+	//request PASV
+	strReply = requestReply(sockpi , 'PASV');
+	
+	 if (strReply.find("227") != std::string::npos)
+		 // get the ip
+	 
+	 // Connect to ip
+	 
+	 
+	 // Let the user choose between LIST or RETR
+	 
+	 std:cout << "Enter LIST or RETR" << endl;
+	 
+	 
+	 
+		 
+	
     return 0;
 }
