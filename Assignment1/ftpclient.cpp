@@ -144,7 +144,6 @@ int main(int argc , char *argv[])
     // Hint: implement a function that set the SP in passive mode and accept commands.
 	
 	//request PASV
-<<<<<<< HEAD
 	strReply = requestReply(sockpi, "PASV\r\n");
     std::cout << strReply << std::endl;
     
@@ -201,10 +200,7 @@ int main(int argc , char *argv[])
         }
         
     } while (userInput != "QUIT");
-=======
-	 
 
->>>>>>> origin/master
 	
     return 0;
 }
