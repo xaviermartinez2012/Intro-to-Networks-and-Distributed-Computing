@@ -1,10 +1,9 @@
 /**
     C++ client example using sockets.
-    This programs can be compiled in linux and with minor modification in 
-	   mac (mainly on the name of the headers)
+    This programs can be compiled in linux and with minor modification in mac (mainly on the name of the headers).
     Windows requires extra lines of code and different headers
-#define WIN32_LEAN_AND_MEAN
 
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -16,6 +15,7 @@ WSADATA wsaData;
 iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
 ...
 */
+
 #include <iostream>    //cout
 #include <string>
 #include <stdio.h> //printf
@@ -120,11 +120,11 @@ int main(int argc , char *argv[])
     
     //  Returns 500 if login not ok
     if (strReply.find("331") != std::string::npos) {
-        std::cout << "Login ok. Message: " << strReply << std::endl;
+        std::cout << "Login ok. Message: [" << strReply << "]" << std::endl;
     }
     //  Returns 331 if login ok (search string for 331)
     else{
-        std::cout << "Error login not ok. Message: " << strReply << std::endl;
+        std::cout << "Error login not ok. Message: [" << strReply << "]" << std::endl;
         return -1;
     }
     
@@ -132,11 +132,11 @@ int main(int argc , char *argv[])
     
     // Returns 230 if password ok
     if (strReply.find("230") != std::string::npos) {
-        std::cout << "Password ok. Message: " << strReply << std::endl;
+        std::cout << "Password ok. Message: [" << strReply << "]" << std::endl;
     }
     // Returns 530 if password not ok
     else{
-        std::cout << "Password not ok. Message: " << strReply << std::endl;
+        std::cout << "Password not ok. Message: [" << strReply << "]" << std::endl;
         return -1;
     }
         
@@ -149,18 +149,24 @@ int main(int argc , char *argv[])
     
     // Returns 227 if passive mode ok
     if (strReply.find("227") != std::string::npos) {
-        std::cout << "Entering passive mode... Message: " << strReply << std::endl;
+        std::cout << "Entering passive mode... Message: [" << strReply << "]" << std::endl;
         
         size_t start = strReply.find("(");
         size_t end = strReply.find(")");
-        std::string IP_PORT = strReply.substr(start + 1, (end - start) - 1);
-        std::cout << "This is the IP_PORT: " << IP_PORT << std::endl;
+        std::string IP_PORT_INFORMATION = strReply.substr(start + 1, (end - start) - 1);
+        std::cout << "This is the IP_PORT_INFORMATION: " << IP_PORT_INFORMATION << std::endl;
         
         int A,B,C,D,a,b;
-        std::sscanf(IP_PORT.c_str(), "%d,%d,%d,%d,%d,%d", &A, &B, &C, &D, &a, &b);
+        std::sscanf(IP_PORT_INFORMATION.c_str(), "%d,%d,%d,%d,%d,%d", &A, &B, &C, &D, &a, &b);
+        int port = ((a << 8) | b);
 //      TODO perform bit shifting to obtain correct port number ((a << 8) | b)
-        std::cout << "Converted IP_PORT: " << A << "." << B << "." << C << "." << D << ":" << a << b << std::endl;
+        // std::cout << "Converted IP_PORT_INFORMATION: " << A << "." << B << "." << C << "." << D << ":" << port << std::endl;
+        char buff[100];
+        snprintf(buff, sizeof(buff), "%d.%d.%d.%d:%d", A, B, C, D, port);
+        std::string ip_port = buff;
+        std::cout << "Converted ip_port: " << ip_port << std::endl;
         
+
         return 0;
     }
     // Passive mode not ok
@@ -171,35 +177,35 @@ int main(int argc , char *argv[])
     
     // Let the user choose between LIST, RETR, QUIT
     // While loop so it keeps going until user inputs QUIT
-    std::string userInput;
-    do{
-        std::cout << "Enter LIST, RETR, or QUIT" << std::endl;
-        std::getline(std::cin,userInput);
+    // std::string userInput;
+    // do{
+    //     std::cout << "Enter LIST, RETR, or QUIT" << std::endl;
+    //     std::getline(std::cin,userInput);
         
-        //Uppercase the userInput
-        for(unsigned int i = 0; i < userInput.length(); i++)
-            s[i] = toupper(s[l]);
+    //     //Uppercase the userInput
+    //     for(unsigned int i = 0; i < userInput.length(); i++)
+    //         s[i] = toupper(s[l]);
         
         
-        if (userInput == "LIST")
-        {
-            strReply = requestReply(sockpi , "LIST");
-            //TODO show the list
-        }
-        else if (userInput == "RETR")
-        {
-            //asks user for file name to retrieve
-            std::cout << "Enter file name to retrieve" << std::endl;
-            std::getline(std::cin,userInput);
-            strReply = requestReply(sockpi , "RETR " + userInput);
+    //     if (userInput == "LIST")
+    //     {
+    //         strReply = requestReply(sockpi , "LIST");
+    //         //TODO show the list
+    //     }
+    //     else if (userInput == "RETR")
+    //     {
+    //         //asks user for file name to retrieve
+    //         std::cout << "Enter file name to retrieve" << std::endl;
+    //         std::getline(std::cin,userInput);
+    //         strReply = requestReply(sockpi , "RETR " + userInput);
             
-        }
-        else if (userInput == "QUIT")
-        {
-            strReply = requestReply(sockpi , "QUIT");
-        }
+    //     }
+    //     else if (userInput == "QUIT")
+    //     {
+    //         strReply = requestReply(sockpi , "QUIT");
+    //     }
         
-    } while (userInput != "QUIT");
+    // } while (userInput != "QUIT");
 
 	
     return 0;
