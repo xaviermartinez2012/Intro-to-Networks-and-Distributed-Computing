@@ -72,7 +72,7 @@ std::string reply(int s)
     int count;
     char buffer[BUFFER_LENGTH+1];
     
-    usleep(100000);
+    usleep(1000000);
     do {
         count = recv(s, buffer, BUFFER_LENGTH, 0);
         buffer[count] = '\0';
@@ -115,16 +115,16 @@ int main(int argc , char *argv[])
     
     //  TODO parse srtReply to obtain the status.
     //  Let the system act according to the status and display
-    //  friendly message to the user
+    //  fristd::endly message to the user
     //  You can see the ouput using std::cout << strReply  << std::endl;
     
     //  Returns 500 if login not ok
     if (strReply.find("331") != std::string::npos) {
-        std::cout << "Login ok. Message: [" << strReply << "]" << std::endl;
+        std::cout << "Login ok. Message:" << std::endl << strReply << std::endl;
     }
     //  Returns 331 if login ok (search string for 331)
     else{
-        std::cout << "Error login not ok. Message: [" << strReply << "]" << std::endl;
+        std::cout << "Error login not ok. Message:" << std::endl << strReply << std::endl;
         return -1;
     }
     
@@ -132,11 +132,11 @@ int main(int argc , char *argv[])
     
     // Returns 230 if password ok
     if (strReply.find("230") != std::string::npos) {
-        std::cout << "Password ok. Message: [" << strReply << "]" << std::endl;
+        std::cout << "Password ok. Message:" << std::endl << strReply << std::endl;
     }
     // Returns 530 if password not ok
     else{
-        std::cout << "Password not ok. Message: [" << strReply << "]" << std::endl;
+        std::cout << "Password not ok. Message:" << std::endl << strReply << std::endl;
         return -1;
     }
         
@@ -149,7 +149,7 @@ int main(int argc , char *argv[])
     
     // Returns 227 if passive mode ok
     if (strReply.find("227") != std::string::npos) {
-        std::cout << "Entering passive mode... Message: [" << strReply << "]" << std::endl;
+        std::cout << "Entering passive mode... Message:" << std::endl << strReply << std::endl;
         
         size_t start = strReply.find("(");
         size_t end = strReply.find(")");
@@ -171,7 +171,7 @@ int main(int argc , char *argv[])
     }
     // Passive mode not ok
     else{
-        std::cout << "Denied passive mode... Message: " << strReply << std::endl;
+        std::cout << "Denied passive mode... Message:" << std::endl << strReply << std::endl;
         return -1;
     }
     
