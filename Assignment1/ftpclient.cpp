@@ -178,7 +178,7 @@ int main(int argc , char *argv[])
         
         //Uppercase the userInput
         for(unsigned int i = 0; i < userInput.length(); i++)
-            s[i] = toupper(s[l]);
+            userInput[i] = toupper(userInput[i]);
         
         
         if (userInput == "LIST")
