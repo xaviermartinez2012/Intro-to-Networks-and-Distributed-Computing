@@ -183,7 +183,7 @@ int main(int argc , char *argv[])
         //Do function depending on user choice
         if (userInput == "LIST")
         {
-            strReply = requestReply(sockpi , "PASV LIST \r\n");
+            strReply = requestReply(sockpi , "LIST \r\n");
             //TODO show the list
         }
         else if (userInput == "RETR")
@@ -191,12 +191,12 @@ int main(int argc , char *argv[])
             //asks user for file name to retrieve
             std::cout << "Enter file name to retrieve" << std::endl;
             std::getline(std::cin,userInput);
-            strReply = requestReply(sockpi , "PASV RETR " + userInput + "\r\n");
+            strReply = requestReply(sockpi , "RETR " + userInput + "\r\n");
             
         }
         else if (userInput == "QUIT")
         {
-            strReply = requestReply(sockpi , "PASV QUIT \r\n");
+            strReply = requestReply(sockpi , "QUIT \r\n");
         }
         
     } while (userInput != "QUIT");
