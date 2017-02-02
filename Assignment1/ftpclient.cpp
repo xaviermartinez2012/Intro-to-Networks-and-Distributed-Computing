@@ -142,7 +142,7 @@ int main(int argc , char *argv[])
         
     //TODO implement PASV, LIST, RETR.
     // Hint: implement a function that set the SP in passive mode and accept commands.
-	
+    do{
 	//request PASV
 	strReply = requestReply(sockpi, "PASV\r\n");
     std::cout << strReply << std::endl;
@@ -172,7 +172,7 @@ int main(int argc , char *argv[])
     // Let the user choose between LIST, RETR, QUIT
     // While loop so it keeps going until user inputs QUIT
     std::string userInput;
-    do{
+    
         std::cout << "Enter LIST, RETR, or QUIT" << std::endl;
         std::getline(std::cin,userInput);
         
