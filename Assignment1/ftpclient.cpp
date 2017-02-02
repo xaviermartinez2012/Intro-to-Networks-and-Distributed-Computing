@@ -1,10 +1,9 @@
 /**
     C++ client example using sockets.
-    This programs can be compiled in linux and with minor modification in 
-	   mac (mainly on the name of the headers)
+    This programs can be compiled in linux and with minor modification in mac (mainly on the name of the headers).
     Windows requires extra lines of code and different headers
-#define WIN32_LEAN_AND_MEAN
 
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -16,6 +15,7 @@ WSADATA wsaData;
 iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
 ...
 */
+
 #include <iostream>    //cout
 #include <string>
 #include <stdio.h> //printf
@@ -66,13 +66,17 @@ int request(int sock, std::string message)
     return send(sock, message.c_str(), message.size(), 0);
 }
 
+void store(int s){
+    // To-do
+}
+
 std::string reply(int s)
 {
     std::string strReply;
     int count;
     char buffer[BUFFER_LENGTH+1];
     
-    usleep(100000);
+    usleep(1000000);
     do {
         count = recv(s, buffer, BUFFER_LENGTH, 0);
         buffer[count] = '\0';
@@ -113,18 +117,16 @@ int main(int argc , char *argv[])
     strReply = requestReply(sockpi, "USER anonymous\r\n");
 //    std::cout << "This is the strReply: " << strReply << std::endl;
     
-    //  TODO parse srtReply to obtain the status.
     //  Let the system act according to the status and display
     //  friendly message to the user
-    //  You can see the ouput using std::cout << strReply  << std::endl;
     
     //  Returns 500 if login not ok
     if (strReply.find("331") != std::string::npos) {
-        std::cout << "Login ok. Message: " << strReply << std::endl;
+        std::cout << "Login ok. Message:" << std::endl << strReply << std::endl;
     }
     //  Returns 331 if login ok (search string for 331)
     else{
-        std::cout << "Error login not ok. Message: " << strReply << std::endl;
+        std::cout << "Error login not ok. Message:" << std::endl << strReply << std::endl;
         return -1;
     }
     
@@ -132,74 +134,86 @@ int main(int argc , char *argv[])
     
     // Returns 230 if password ok
     if (strReply.find("230") != std::string::npos) {
-        std::cout << "Password ok. Message: " << strReply << std::endl;
+        std::cout << "Password ok. Message:" << std::endl << strReply << std::endl;
     }
     // Returns 530 if password not ok
     else{
-        std::cout << "Password not ok. Message: " << strReply << std::endl;
-        return -1;
-    }
-        
-    //TODO implement PASV, LIST, RETR.
-    // Hint: implement a function that set the SP in passive mode and accept commands.
-    do{
-	//request PASV
-	strReply = requestReply(sockpi, "PASV\r\n");
-    std::cout << strReply << std::endl;
-    
-    // Returns 227 if passive mode ok
-    if (strReply.find("227") != std::string::npos) {
-        std::cout << "Entering passive mode... Message: " << strReply << std::endl;
-        
-        size_t start = strReply.find("(");
-        size_t end = strReply.find(")");
-        std::string IP_PORT = strReply.substr(start + 1, (end - start) - 1);
-        std::cout << "This is the IP_PORT: " << IP_PORT << std::endl;
-        
-        int A,B,C,D,a,b;
-        std::sscanf(IP_PORT.c_str(), "%d,%d,%d,%d,%d,%d", &A, &B, &C, &D, &a, &b);
-//      TODO perform bit shifting to obtain correct port number ((a << 8) | b)
-        std::cout << "Converted IP_PORT: " << A << "." << B << "." << C << "." << D << ":" << a << b << std::endl;
-        
-        return 0;
-    }
-    // Passive mode not ok
-    else{
-        std::cout << "Denied passive mode... Message: " << strReply << std::endl;
+        std::cout << "Password not ok. Message:" << std::endl << strReply << std::endl;
         return -1;
     }
     
     // Let the user choose between LIST, RETR, QUIT
     // While loop so it keeps going until user inputs QUIT
     std::string userInput;
-    
+    do{
         std::cout << "Enter LIST, RETR, or QUIT" << std::endl;
         std::getline(std::cin,userInput);
+
+	    strReply = requestReply(sockpi, "PASV\r\n");
+        // std::cout << strReply << std::endl;
+        int A,B,C,D,a,b,port,sockpj;
+        std::string ip;
         
+        // Returns 227 if passive mode ok
+        if (strReply.find("227") != std::string::npos) {
+            std::cout << "Entering passive mode... Message: " << strReply << std::endl;
+            size_t start = strReply.find("(");
+            size_t end = strReply.find(")");
+            std::string IP_PORT = strReply.substr(start + 1, (end - start) - 1);
+            // std::cout << "This is the IP_PORT: " << IP_PORT << std::endl;
+            std::sscanf(IP_PORT.c_str(), "%d,%d,%d,%d,%d,%d", &A, &B, &C, &D, &a, &b);
+            port = ((a << 8) | b);
+            char buff[100];
+            snprintf(buff, sizeof(buff), "%d.%d.%d.%d", A, B, C, D);
+            ip = buff;
+            // std::cout << "Converted ip: " << ip << std::endl;
+            sockpj = createConnection(ip, port);
+        }
+        // Passive mode not ok
+        else{
+            std::cout << "Denied passive mode... Message: " << strReply << std::endl;
+            break;
+        }
         //Uppercase the userInput
-        for(unsigned int i = 0; i < userInput.length(); i++)
-            userInput[i] = toupper(userInput[i]);
+        // for(unsigned int i = 0; i < userInput.length(); i++)
+        //     userInput[i] = toupper(userInput[i]);
         
         //Do function depending on user choice
-        if (userInput == "LIST")
+        if (strReply.find("LIST") != std::string::npos)
         {
-            strReply = requestReply(sockpi , "LIST \r\n");
+            strReply = requestReply(sockpi ,userInput + "\r\n");
+            // std::cout << strReply << std::endl;
+            std::string strReply2 = reply(sockpj);
+            std::cout << strReply2 << std::endl;
+            close(sockpj);
+            strReply = reply(sockpi);
+            std::cout << strReply << std::endl;
         }
-        else if (userInput == "RETR")
+        else if (strReply.find("RETR") != std::string::npos)
         {
-            //asks user for file name to retrieve
-            std::cout << "Enter file name to retrieve" << std::endl;
-            std::getline(std::cin,userInput);
-            strReply = requestReply(sockpi , "RETR " + userInput + "\r\n");
+            //Asks user for file name to retrieve
+            std::cout << std::endl << "Enter file name to retrieve" << std::endl;
+            std::string fileName;
+            std::getline(std::cin,fileName);
+            strReply = requestReply(sockpi , userInput + " " + fileName + "\r\n");
+            reply(sockpj);
+            close(sockpj);
+            strReply = reply(sockpi);
+            std::cout << strReply << std::endl;
             
         }
         else if (userInput == "QUIT")
         {
             strReply = requestReply(sockpi , "QUIT \r\n");
+            if (strReply.find("221") != std::string::npos) {
+                std::cout << std::endl << "Quiting..." << std::endl;
+            }
+            else{
+                std::cout << std::endl << "Error quiting. Try Again." << std::endl;
+            }
         }
         
     } while (userInput != "QUIT");
-
 	
     return 0;
 }
