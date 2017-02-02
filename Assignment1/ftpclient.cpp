@@ -180,7 +180,7 @@ int main(int argc , char *argv[])
         for(unsigned int i = 0; i < userInput.length(); i++)
             userInput[i] = toupper(userInput[i]);
         
-        //Do function depenging on user choice
+        //Do function depending on user choice
         if (userInput == "LIST")
         {
             strReply = requestReply(sockpi , "PASV LIST \r\n");
