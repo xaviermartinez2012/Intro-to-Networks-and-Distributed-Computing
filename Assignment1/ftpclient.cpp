@@ -180,10 +180,10 @@ int main(int argc , char *argv[])
         for(unsigned int i = 0; i < userInput.length(); i++)
             userInput[i] = toupper(userInput[i]);
         
-        
+        //Do function depenging on user choice
         if (userInput == "LIST")
         {
-            strReply = requestReply(sockpi , "LIST");
+            strReply = requestReply(sockpi , "PASV LIST \r\n");
             //TODO show the list
         }
         else if (userInput == "RETR")
@@ -191,12 +191,12 @@ int main(int argc , char *argv[])
             //asks user for file name to retrieve
             std::cout << "Enter file name to retrieve" << std::endl;
             std::getline(std::cin,userInput);
-            strReply = requestReply(sockpi , "RETR " + userInput);
+            strReply = requestReply(sockpi , "PASV RETR " + userInput + "\r\n");
             
         }
         else if (userInput == "QUIT")
         {
-            strReply = requestReply(sockpi , "QUIT");
+            strReply = requestReply(sockpi , "PASV QUIT \r\n");
         }
         
     } while (userInput != "QUIT");
