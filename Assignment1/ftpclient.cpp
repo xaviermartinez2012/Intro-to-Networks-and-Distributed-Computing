@@ -156,7 +156,7 @@ int main(int argc , char *argv[])
         
         // Returns 227 if passive mode ok
         if (strReply.find("227") != std::string::npos) {
-            std::cout << "Entering passive mode... Message: " << strReply << std::endl;
+            // std::cout << "Entering passive mode... Message: " << strReply << std::endl;
             size_t start = strReply.find("(");
             size_t end = strReply.find(")");
             std::string IP_PORT = strReply.substr(start + 1, (end - start) - 1);
@@ -171,7 +171,7 @@ int main(int argc , char *argv[])
         }
         // Passive mode not ok
         else{
-            std::cout << "Denied passive mode... Message: " << strReply << std::endl;
+            // std::cout << "Denied passive mode... Message: " << strReply << std::endl;
             break;
         }
         //Uppercase the userInput
@@ -179,9 +179,9 @@ int main(int argc , char *argv[])
         //     userInput[i] = toupper(userInput[i]);
         
         //Do function depending on user choice
-        if (strReply.find("LIST") != std::string::npos)
+        if (userInput.find("LIST") != std::string::npos)
         {
-            strReply = requestReply(sockpi ,userInput + "\r\n");
+            strReply = requestReply(sockpi, userInput + "\r\n");
             // std::cout << strReply << std::endl;
             std::string strReply2 = reply(sockpj);
             std::cout << strReply2 << std::endl;
@@ -189,7 +189,7 @@ int main(int argc , char *argv[])
             strReply = reply(sockpi);
             std::cout << strReply << std::endl;
         }
-        else if (strReply.find("RETR") != std::string::npos)
+        else if (userInput.find("RETR") != std::string::npos)
         {
             //Asks user for file name to retrieve
             std::cout << std::endl << "Enter file name to retrieve" << std::endl;
@@ -211,6 +211,10 @@ int main(int argc , char *argv[])
             else{
                 std::cout << std::endl << "Error quiting. Try Again." << std::endl;
             }
+        }
+        else{
+            std::cout << std::endl << "Invalid option. Try again." << std::endl;
+            close(sockpj);
         }
         
     } while (userInput != "QUIT");
