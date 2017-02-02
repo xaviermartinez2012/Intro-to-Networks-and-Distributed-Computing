@@ -184,7 +184,6 @@ int main(int argc , char *argv[])
         if (userInput == "LIST")
         {
             strReply = requestReply(sockpi , "LIST \r\n");
-            //TODO show the list
         }
         else if (userInput == "RETR")
         {
