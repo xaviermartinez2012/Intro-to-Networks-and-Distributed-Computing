@@ -162,10 +162,18 @@ int main(int argc , char *argv[])
 //      TODO perform bit shifting to obtain correct port number ((a << 8) | b)
         // std::cout << "Converted IP_PORT_INFORMATION: " << A << "." << B << "." << C << "." << D << ":" << port << std::endl;
         char buff[100];
-        snprintf(buff, sizeof(buff), "%d.%d.%d.%d:%d", A, B, C, D, port);
-        std::string ip_port = buff;
-        std::cout << "Converted ip_port: " << ip_port << std::endl;
-        
+        snprintf(buff, sizeof(buff), "%d.%d.%d.%d", A, B, C, D);
+        std::string ip = buff;
+        std::cout << "Converted ip: " << ip << std::endl;
+
+        int sockpj = createConnection(ip, port);
+        strReply = requestReply(sockpi, "LIST\r\n");
+        std::cout << strReply << std::endl;
+        std::string strReply2 = reply(sockpj);
+        std::cout << strReply2 << std::endl;
+        strReply = requestReply(sockpi, "RETR welcome.msg\r\n");
+        std::cout << strReply << std::endl;
+        reply(sockpj);
 
         return 0;
     }
