@@ -15,6 +15,7 @@
 // ...
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <stdio.h>
 #include <stdlib.h>
@@ -80,9 +81,21 @@ int request(int sock, std::string message)
 /*!
 \brief Function to store data retrieved from the DTP server.
 \param s The socket to use.
+\param fileName The name of the file to save.
 */
-void store(int s){
-    // To-do
+void store(int s, std::string fileName){
+    int count;
+    char buffer[BUFFER_LENGTH+1];
+
+    std::ofstream outfile;
+    outfile.open(fileName);
+    usleep(1000000);
+    do {
+        count = recv(s, buffer, BUFFER_LENGTH, 0);
+        buffer[count] = '\0';
+        outfile << buffer;
+    }while (count ==  BUFFER_LENGTH);
+    outfile.close();
 }
 
 /*!
@@ -220,15 +233,16 @@ int main(int argc , char *argv[])
             strReply = reply(sockpi);
             std::cout << strReply << std::endl;
         }
-        else if (userInput.find("RETR") == 0)
+        else if (userInput.find("RETR ") == 0)
         {
-            strReply = requestReply(sockpi, userInput + "\r\n");
+            std::string fileName = userInput.erase(0,5);
+            strReply = requestReply(sockpi, "RETR " + fileName + "\r\n");
         //  std::cout << std::endl << strReply << std::endl;
             if (strReply.find("550") != std::string::npos){
                 close(sockpj);
             }
             else{
-                reply(sockpj);
+                store(sockpj, fileName);
                 close(sockpj);
                 strReply = reply(sockpi);
                 std::cout << std::endl << strReply << std::endl;
