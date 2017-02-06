@@ -87,6 +87,7 @@ $(document).ready(function(){initNavTree('ftpclient_8cpp.html','');});
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &lt;iostream&gt;</code><br />
+<code>#include &lt;fstream&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
 <code>#include &lt;stdio.h&gt;</code><br />
 <code>#include &lt;stdlib.h&gt;</code><br />
@@ -114,9 +115,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ac2aa65001102647fd5589df6bcfe9a03"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ftpclient_8cpp.html#ac2aa65001102647fd5589df6bcfe9a03">request</a> (int sock, std::string message)</td></tr>
 <tr class="memdesc:ac2aa65001102647fd5589df6bcfe9a03"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send a request via the socket provided.  <a href="#ac2aa65001102647fd5589df6bcfe9a03">More...</a><br /></td></tr>
 <tr class="separator:ac2aa65001102647fd5589df6bcfe9a03"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad2cb46491b27e2f4f24dd37fd17071e5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ftpclient_8cpp.html#ad2cb46491b27e2f4f24dd37fd17071e5">store</a> (int s)</td></tr>
-<tr class="memdesc:ad2cb46491b27e2f4f24dd37fd17071e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to store data retrieved from the DTP server.  <a href="#ad2cb46491b27e2f4f24dd37fd17071e5">More...</a><br /></td></tr>
-<tr class="separator:ad2cb46491b27e2f4f24dd37fd17071e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a91e174911192e9c67b5f6799d28a6fc3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ftpclient_8cpp.html#a91e174911192e9c67b5f6799d28a6fc3">store</a> (int s, std::string fileName)</td></tr>
+<tr class="memdesc:a91e174911192e9c67b5f6799d28a6fc3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to store data retrieved from the DTP server.  <a href="#a91e174911192e9c67b5f6799d28a6fc3">More...</a><br /></td></tr>
+<tr class="separator:a91e174911192e9c67b5f6799d28a6fc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0a7aa7cf7186b69af4a474ae41119998"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ftpclient_8cpp.html#a0a7aa7cf7186b69af4a474ae41119998">reply</a> (int s)</td></tr>
 <tr class="memdesc:a0a7aa7cf7186b69af4a474ae41119998"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to accept a reply from server.  <a href="#a0a7aa7cf7186b69af4a474ae41119998">More...</a><br /></td></tr>
 <tr class="separator:a0a7aa7cf7186b69af4a474ae41119998"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -142,7 +143,7 @@ Functions</h2></td></tr>
 
 <p>The buffer length to use when retrieving messages from DTP server. </p>
 
-<p>Definition at line <a class="el" href="ftpclient_8cpp_source.html#l00030">30</a> of file <a class="el" href="ftpclient_8cpp_source.html">ftpclient.cpp</a>.</p>
+<p>Definition at line <a class="el" href="ftpclient_8cpp_source.html#l00031">31</a> of file <a class="el" href="ftpclient_8cpp_source.html">ftpclient.cpp</a>.</p>
 
 </div>
 </div>
@@ -183,7 +184,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The socket to use. </dd></dl>
 
-<p>Definition at line <a class="el" href="ftpclient_8cpp_source.html#l00038">38</a> of file <a class="el" href="ftpclient_8cpp_source.html">ftpclient.cpp</a>.</p>
+<p>Definition at line <a class="el" href="ftpclient_8cpp_source.html#l00039">39</a> of file <a class="el" href="ftpclient_8cpp_source.html">ftpclient.cpp</a>.</p>
 
 </div>
 </div>
@@ -223,7 +224,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Exit code. </dd></dl>
 
-<p>Definition at line <a class="el" href="ftpclient_8cpp_source.html#l00129">129</a> of file <a class="el" href="ftpclient_8cpp_source.html">ftpclient.cpp</a>.</p>
+<p>Definition at line <a class="el" href="ftpclient_8cpp_source.html#l00142">142</a> of file <a class="el" href="ftpclient_8cpp_source.html">ftpclient.cpp</a>.</p>
 
 </div>
 </div>
@@ -252,7 +253,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The reply. </dd></dl>
 
-<p>Definition at line <a class="el" href="ftpclient_8cpp_source.html#l00093">93</a> of file <a class="el" href="ftpclient_8cpp_source.html">ftpclient.cpp</a>.</p>
+<p>Definition at line <a class="el" href="ftpclient_8cpp_source.html#l00106">106</a> of file <a class="el" href="ftpclient_8cpp_source.html">ftpclient.cpp</a>.</p>
 
 </div>
 </div>
@@ -292,7 +293,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Error code. </dd></dl>
 
-<p>Definition at line <a class="el" href="ftpclient_8cpp_source.html#l00075">75</a> of file <a class="el" href="ftpclient_8cpp_source.html">ftpclient.cpp</a>.</p>
+<p>Definition at line <a class="el" href="ftpclient_8cpp_source.html#l00076">76</a> of file <a class="el" href="ftpclient_8cpp_source.html">ftpclient.cpp</a>.</p>
 
 </div>
 </div>
@@ -332,12 +333,12 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The reply. </dd></dl>
 
-<p>Definition at line <a class="el" href="ftpclient_8cpp_source.html#l00114">114</a> of file <a class="el" href="ftpclient_8cpp_source.html">ftpclient.cpp</a>.</p>
+<p>Definition at line <a class="el" href="ftpclient_8cpp_source.html#l00127">127</a> of file <a class="el" href="ftpclient_8cpp_source.html">ftpclient.cpp</a>.</p>
 
 </div>
 </div>
-<a id="ad2cb46491b27e2f4f24dd37fd17071e5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad2cb46491b27e2f4f24dd37fd17071e5">&sect;&nbsp;</a></span>store()</h2>
+<a id="a91e174911192e9c67b5f6799d28a6fc3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a91e174911192e9c67b5f6799d28a6fc3">&sect;&nbsp;</a></span>store()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -346,8 +347,18 @@ Functions</h2></td></tr>
           <td class="memname">void store </td>
           <td>(</td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>s</em></td><td>)</td>
+          <td class="paramname"><em>s</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>fileName</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -356,11 +367,12 @@ Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">s</td><td>The socket to use. </td></tr>
+    <tr><td class="paramname">fileName</td><td>The name of the file to save. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="ftpclient_8cpp_source.html#l00084">84</a> of file <a class="el" href="ftpclient_8cpp_source.html">ftpclient.cpp</a>.</p>
+<p>Definition at line <a class="el" href="ftpclient_8cpp_source.html#l00086">86</a> of file <a class="el" href="ftpclient_8cpp_source.html">ftpclient.cpp</a>.</p>
 
 </div>
 </div>
