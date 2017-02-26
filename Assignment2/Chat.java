@@ -13,54 +13,27 @@ import java.nio.charset.StandardCharsets;
 public class Chat {
 
     /*
-       Json Messages:
-     
-      {
-        "type" :  "JOIN",
-        "parameters" :
-               {   
-                    "myAlias" : string,
-                    "myPort"  : number
-               }
-       }
-     
-       {
-        "type" :  "ACCEPT",
-        "parameters" :
-               {   
-                   "ipPred"    : string,
-                   "portPred"  : number
-               }
-    }
+    Json Messages:
      
     {
-         "type" :  "LEAVE",
-         "parameters" :
-         {
-             "ipPred"    : string,
-             "portPred"  : number
-         }
+    "type" :  "LEAVE",
+    "parameters" :
+        {
+        "ipPred"    : string,
+        "portPred"  : number
+        }
     }
     
-       {
-         "type" :  "Put",
-        "parameters" :
-         {
-             "aliasSender"    : string,
-             "aliasReceiver"  : string,
-             "message"        : string
-        }
-       }
-     
-     {
-        "type" :  "NEWSUCCESSOR",
-        "parameters" :
+    {
+    "type" :  "Put",
+    "parameters" :
         {
-            "ipSuccessor"    : string,
-            "portSuccessor"  : number
+        "aliasSender"    : string,
+        "aliasReceiver"  : string,
+        "message"        : string
         }
-     }
-     */
+    }
+    */
 
     // My info
     public String alias;
@@ -156,20 +129,6 @@ public class Chat {
             try {
                 ServerSocket servSock = new ServerSocket(myPort);
                 while (true) {
-                    /*
-                     Socket clntSock = servSock.accept(); // Get client connections
-                     Create a new thread to handle the connection
-                    
-                     ObjectInputStream  ois = new
-                     ObjectInputStream(clntSock.getInputStream());
-                     ObjectOutputStream oos = new
-                     ObjectOutputStream(clntSock.getOutputStream());
-                     ois.read();    reads the message using JsonParser and handle the messages
-                    
-                     oos.write(m);   only if the message requires a response
-                     clntSock.close();
-                     */
-
                     Socket clientSock = servSock.accept();
                     new Thread() {
                         public void run() {
@@ -178,7 +137,6 @@ public class Chat {
                                 JsonObject message = reader.readObject();
                                 reader.close();
                                 clientSock.close();
-                                // System.out.println(message.toString());
                                 JsonObject parameters = message.getJsonObject("parameters");
                                 if (message.getString("type").equals("JOIN")) {
                                     int joinPort = parameters.getInt("myPort");
@@ -226,7 +184,6 @@ public class Chat {
                                         System.out.println("Unlocking.");
                                     }
                                 }
-                                // ObjectOutputStream oos = new ObjectOutputStream(clientSock.getOutputStream());
                             } catch (JsonException j) {
                                 System.out.println("Json exception exiting...");
                                 System.exit(-1);
@@ -341,28 +298,6 @@ public class Chat {
                 portPredecessor = myPort;
             }
             while (true) {
-                /*
-                Create a simple user interface
-                
-                The first thing to do is to join
-                   ask the ip and port when joining and set ipSuccessor = ip, portSuccessor = port
-                Socket socket = new Socket(ipSuccessor, portSuccessor);
-                
-                
-                // Create the mssages m using JsonWriter and send it as stream
-                
-                ObjectOutputStream oos = new
-                ObjectOutputStream(socket.getOutputStream());
-                ObjectInputStream ois = new
-                ObjectInputStream(socket.getInputStream());
-                oos.write(m);   this sends the message
-                  ois.read();    reads the response and parse it using JsonParser
-                socket.close();
-                 
-                 Use mutex to handle race condition when reading and writing the global variable (ipSuccessor, 
-                portSuccessor, ipPredecessor, portPredecessor)
-                 
-                 */
                 Scanner in = new Scanner(System.in);
                 int userSelection = SelectionMenu(in);
                 switch (userSelection) {
