@@ -140,48 +140,50 @@ public class Chat {
                                 JsonObject parameters = message.getJsonObject("parameters");
                                 if (message.getString("type").equals("JOIN")) {
                                     int joinPort = parameters.getInt("myPort");
-                                    System.out.println("Peer at port " + joinPort + " is requesting to join.");
-                                    System.out.println("Sending request to accept to peer at port " + joinPort + ".");
+                                    System.out.println();
+                                    System.out.println("-- Peer at port " + joinPort + " is requesting to join.");
+                                    System.out.println("-- Sending request to accept to peer at port " + joinPort + ".");
                                     Socket acceptSocket = GetSocket(joinPort);
                                     accept(acceptSocket, ipPredecessor, portPredecessor, myPort);
                                     Socket predSocket = GetSocket(portPredecessor);
-                                    System.out.println("Sending successor information to predecessor at port "
+                                    System.out.println("-- Sending successor information to predecessor at port "
                                             + portPredecessor + ".");
                                     NewSuccessor(predSocket, "127.0.0.1", joinPort, myPort);
                                     synchronized (lock1) {
-                                        System.out.println("Lock set.");
-                                        System.out.println("> Updating portPredecessor -> " + joinPort);
+                                        System.out.println("-- Lock set --");
+                                        System.out.println("-- Updating portPredecessor -> " + joinPort);
                                         portPredecessor = joinPort;
-                                        System.out.println("Unlocking.");
+                                        System.out.println("-- Unlocking --");
                                     }
                                 } else if (message.getString("type").equals("ACCEPT")) {
                                     int acceptPredPort = parameters.getInt("portPred");
                                     int peerPort = parameters.getInt("myPort");
-                                    System.out.println("Peer at port " + peerPort + " is requesting to accept.");
+                                    System.out.println();
+                                    System.out.println("-- Peer at port " + peerPort + " is requesting to accept.");
                                     synchronized (lock1) {
-                                        System.out.println("Lock set.");
-                                        System.out.println("> Updating portPredecessor -> " + acceptPredPort);
+                                        System.out.println("-- Lock set --");
+                                        System.out.println("-- Updating portPredecessor -> " + acceptPredPort);
                                         portPredecessor = acceptPredPort;
-                                        System.out.println("> Updating portSuccessor -> " + peerPort);
+                                        System.out.println("-- Updating portSuccessor -> " + peerPort);
                                         portSuccessor = peerPort;
-                                        System.out.println("Unlocking.");
+                                        System.out.println("-- Unlocking --");
                                     }
-                                    System.out.println("Accepting peer at port " + peerPort + ".");
+                                    System.out.println("-- Accepting peer at port " + peerPort + ".");
                                     Socket acceptedSocket = GetSocket(peerPort);
                                     accepted(acceptedSocket, ipPredecessor, portPredecessor, myPort);
                                 } else if (message.getString("type").equals("ACCEPTED")) {
                                     int peerPort = parameters.getInt("myPort");
-                                    System.out.println("Peer at port " + peerPort + "accepted connection.");
+                                    System.out.println("-- Peer at port " + peerPort + " accepted connection.");
                                 } else if (message.getString("type").equals("NEWSUCCESSOR")) {
                                     int newSuccessorPort = parameters.getInt("portSuccessor");
                                     int peerPort = parameters.getInt("myPort");
-                                    System.out.println("Peer at port " + peerPort
+                                    System.out.println("-- Peer at port " + peerPort
                                             + " is requesting to update portSuccessor information.");
                                     synchronized (lock1) {
-                                        System.out.println("Lock set.");
-                                        System.out.println("> Updating portSuccessor -> " + newSuccessorPort);
+                                        System.out.println("-- Lock set --");
+                                        System.out.println("-- Updating portSuccessor -> " + newSuccessorPort);
                                         portSuccessor = newSuccessorPort;
-                                        System.out.println("Unlocking.");
+                                        System.out.println("-- Unlocking --");
                                     }
                                 }
                             } catch (JsonException j) {
@@ -192,11 +194,12 @@ public class Chat {
                                 System.exit(-1);
                             } finally {
                                 synchronized (lock1) {
-                                    System.out.println("State of system:");
-                                    System.out.println("> myAlias         : " + alias);
-                                    System.out.println("> myPort          : " + myPort);
-                                    System.out.println("> portPredecessor : " + portPredecessor);
-                                    System.out.println("> portSuccessor   : " + portSuccessor);
+                                    System.out.println("-- State of system --");
+                                    System.out.println("-- myAlias         : " + alias);
+                                    System.out.println("-- myPort          : " + myPort);
+                                    System.out.println("-- portPredecessor : " + portPredecessor);
+                                    System.out.println("-- portSuccessor   : " + portSuccessor);
+                                    System.out.print("> ");
                                 }
                             }
                         }
@@ -234,9 +237,6 @@ public class Chat {
             OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
             out.write(jsonJoinMessageObject.toString());
             out.close();
-            JsonReader reader = Json.createReader(socket.getInputStream());
-            JsonObject jsonAcceptMessageObject = reader.readObject();
-            reader.close();
         }
 
         public int SelectionMenu(Scanner in) {
@@ -297,8 +297,8 @@ public class Chat {
                 portSuccessor = myPort;
                 portPredecessor = myPort;
             }
+            Scanner in = new Scanner(System.in);
             while (true) {
-                Scanner in = new Scanner(System.in);
                 int userSelection = SelectionMenu(in);
                 switch (userSelection) {
                 case 1:
@@ -306,18 +306,14 @@ public class Chat {
                     try {
                         Socket sock = GetSocket(port);
                         join(sock);
-                        wait();
                     } catch (IOException io) {
                         io.printStackTrace();
                         System.out.println("IO Exception in Case 1.");
-                    } catch (InterruptedException interr) {
-                        interr.printStackTrace();
-                        System.out.println("InterruptedException in Client Run. Exiting...");
-                        System.exit(-1);
                     }
                     break;
                 case 2:
                     System.out.println("Exiting...");
+                    in.close();
                     System.exit(0);
                     break;
                 }
