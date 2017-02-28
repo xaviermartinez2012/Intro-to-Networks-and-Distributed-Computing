@@ -11,19 +11,8 @@ import java.nio.charset.StandardCharsets;
 * using flooding 
 **********************************/
 public class Chat {
-
-    /*
-    Json Messages:
-     
-    {
-    "type" :  "LEAVE",
-    "parameters" :
-        {
-        "ipPred"    : string,
-        "portPred"  : number
-        }
-    }
     
+    /*
     {
     "type" :  "Put",
     "parameters" :
