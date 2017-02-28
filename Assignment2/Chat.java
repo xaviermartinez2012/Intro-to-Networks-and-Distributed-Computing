@@ -143,7 +143,7 @@ public class Chat {
                                         System.out.println("-- Updating portPredecessor -> " + acceptPredPort);
                                         portPredecessor = acceptPredPort;
                                         System.out.println("-- Updating portSuccessor -> " + peerPort);
-                                        portSuccessor = peerPort;
+                                        portSuccessor = peerPort;q
                                         System.out.println("-- Unlocking --");
                                     }
                                     System.out.println("-- Accepting peer at port " + peerPort + ".");
@@ -178,6 +178,11 @@ public class Chat {
                                             + portPredecessor + ".");
                                     NewSuccessor(predSocket, "127.0.0.1", myPort, myPort);
                                 }
+								
+								
+								
+								
+							
                             } catch (JsonException j) {
                                 System.out.println("Json exception exiting...");
                                 System.exit(-1);
@@ -377,7 +382,7 @@ public class Chat {
 					put(alias, putParameter[0], putParameter[1], myPort);	//putParameter[0] = aliasReciever			putParameter[1] = msg
 					break;	
                 case 3:
-                    try{
+                    try {
                         Socket sock = GetSocket(portSuccessor);
                         leave(sock);
                     } catch (IOException io) {
