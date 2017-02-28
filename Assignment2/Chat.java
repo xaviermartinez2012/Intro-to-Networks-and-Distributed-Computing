@@ -185,6 +185,20 @@ public class Chat {
                                         portSuccessor = newSuccessorPort;
                                         System.out.println("-- Unlocking --");
                                     }
+                                } else if (message.getString("type").equals("LEAVE")) {
+                                    int newPortPredecessor = parameters.getInt("portPred");
+                                    int peerPort = parameters.getInt("myPort");
+                                    System.out.println("-- Peer at port " + peerPort + " is leaving.");
+                                    synchronized (lock1) {
+                                        System.out.println("-- Lock set --");
+                                        System.out.println("-- Updating portPredecessor -> " + newPortPredecessor);
+                                        portPredecessor = newPortPredecessor;
+                                        System.out.println("-- Unlocking --");
+                                    }
+                                    Socket predSocket = GetSocket(portPredecessor);
+                                    System.out.println("-- Sending successor information to predecessor at port "
+                                            + portPredecessor + ".");
+                                    NewSuccessor(predSocket, "127.0.0.1", myPort, myPort);
                                 }
                             } catch (JsonException j) {
                                 System.out.println("Json exception exiting...");
@@ -239,17 +253,35 @@ public class Chat {
             out.close();
         }
 
+        /*
+        {
+        "type" :  "LEAVE",
+        "parameters" :
+            {
+            "ipPred"    : string,
+            "portPred"  : number
+            }
+        }
+        */
+        public void leave(Socket socket) throws IOException {
+            JsonObject jsonJoinMessageObject = Json.createObjectBuilder().add("type", "LEAVE")
+                    .add("parameters", Json.createObjectBuilder().add("ipPred", ipPredecessor).add("portPred", portPredecessor).add("myPort", myPort)).build();
+            OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
+            out.write(jsonJoinMessageObject.toString());
+            out.close();
+        }       
+
         public int SelectionMenu(Scanner in) {
             boolean correct_input = false;
             int selection = 0;
             while (!correct_input) {
                 System.out.println("Please select an option:");
                 System.out.println("(1) Join");
-                System.out.println("(2) Exit");
+                System.out.println("(3) Leave");
                 System.out.print("> ");
                 try {
                     selection = in.nextInt();
-                    if (selection != 1 && selection != 2) {
+                    if (selection != 1 && selection != 3) {
                         System.out.println("Invalid choice. Try again...");
                     } else {
                         correct_input = true;
@@ -311,11 +343,17 @@ public class Chat {
                         System.out.println("IO Exception in Case 1.");
                     }
                     break;
-                case 2:
+                case 3:
+                    try{
+                        Socket sock = GetSocket(portSuccessor);
+                        leave(sock);
+                    } catch (IOException io) {
+                        io.printStackTrace();
+                        System.out.println("IO Exception in Case 3.");
+                    }
                     System.out.println("Exiting...");
                     in.close();
                     System.exit(0);
-                    break;
                 }
             }
         }
