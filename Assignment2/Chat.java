@@ -36,6 +36,11 @@ public class Chat {
 
     private Object lock1 = new Object();
 
+    /*!
+    \brief Creates connection via sockets using the provided port.
+    \param port The port to use.
+    \return The socket to use.
+    */
     public Socket GetSocket(int port) throws IOException {
         Socket socket = new Socket("127.0.0.1", port);
         return socket;
@@ -60,6 +65,13 @@ public class Chat {
                 }
             }
         */
+        /*!
+        \brief Sends "ACCEPT" message via sockets.
+        \param clientSocket The Socket to use.
+        \param ipPred The IP of the Predecessor.
+        \param portPred The port of the Predecessor.
+        \param myPort The port of the sender.
+        */
         public void accept(Socket clientSocket, String ipPred, int portPred, int myPort) throws IOException {
             JsonObject jsonAcceptMessageObject = Json.createObjectBuilder().add("type", "ACCEPT").add("parameters", Json
                     .createObjectBuilder().add("ipPred", ipPred).add("portPred", portPredecessor).add("myPort", myPort))
@@ -78,6 +90,13 @@ public class Chat {
                 "portPred"  : number
                 }
             }
+        */
+        /*!
+        \brief Sends "ACCEPTED" message via sockets.
+        \param peerSocket The Socket to use.
+        \param updatedPredIP The updated Predecessor IP of the sender.
+        \param updatedPortPred The updated port of the sender.
+        \param myPort The port of the sender.
         */
         public void accepted(Socket peerSocket, String updatedPredIP, int updatedPortPred, int myPort)
                 throws IOException {
@@ -99,6 +118,13 @@ public class Chat {
                 "portSuccessor"  : number
                 }
             }
+        */
+        /*!
+        \brief Sends "NEWSUCCESSOR" message via sockets.
+        \param succSocket The Socket to use.
+        \param ipSucc The IP of the Successor to update on the Receiver.
+        \param portPred The port of the Predecessor.
+        \param myPort The port of the sender.
         */
         public void NewSuccessor(Socket succSocket, String ipSucc, int portSucc, int myPort) throws IOException {
             JsonObject jsonAcceptMessageObject = Json.createObjectBuilder().add("type", "NEWSUCCESSOR")
@@ -234,6 +260,10 @@ public class Chat {
                 }
             }
         */
+        /*!
+        \brief Sends "JOIN" message via sockets.
+        \param socket The Socket to use.
+        */
         public void join(Socket socket) throws IOException {
             JsonObject jsonJoinMessageObject = Json.createObjectBuilder().add("type", "JOIN")
                     .add("parameters", Json.createObjectBuilder().add("myAlias", alias).add("myPort", myPort)).build();
@@ -252,6 +282,10 @@ public class Chat {
             }
         }
         */
+        /*!
+        \brief Sends "LEAVE" message via sockets.
+        \param socket The Socket to use.
+        */
         public void leave(Socket socket) throws IOException {
             JsonObject jsonJoinMessageObject = Json.createObjectBuilder().add("type", "LEAVE")
                     .add("parameters", Json.createObjectBuilder().add("ipPred", ipPredecessor).add("portPred", portPredecessor).add("myPort", myPort)).build();
@@ -260,6 +294,10 @@ public class Chat {
             out.close();
         }       
 
+        /*!
+        \brief Provides a text-based user menu.
+        \param in The scanner to use for user input.
+        */
         public int SelectionMenu(Scanner in) {
             boolean correct_input = false;
             int selection = 0;
@@ -285,7 +323,10 @@ public class Chat {
             }
             return selection;
         }
-
+        /*!
+        \brief Provides a text-based user menu for the JOIN functionality.
+        \param in The scanner to use for user input.
+        */
         public int JoinMenu(Scanner in) {
             boolean correct_port = false;
             int port = myPort;
@@ -339,7 +380,7 @@ public class Chat {
                     } catch (IOException io) {
                         io.printStackTrace();
                         System.out.println("IO Exception in Case 3.");
-                    }
+                    } 
                     System.out.println("Exiting...");
                     in.close();
                     System.exit(0);
@@ -372,7 +413,11 @@ public class Chat {
             System.exit(-1);
         }
     }
-
+    
+    /*!
+    \brief The main.
+    \param args The arguments: <alias> <myPort>.
+    */
     public static void main(String[] args) {
         if (args.length < 2) {
             throw new IllegalArgumentException("Parameter: <alias> <myPort>");
