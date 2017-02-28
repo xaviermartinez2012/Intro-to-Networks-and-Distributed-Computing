@@ -266,11 +266,12 @@ public class Chat {
             while (!correct_input) {
                 System.out.println("Please select an option:");
                 System.out.println("(1) Join");
+				System.out.println("(2) Put");
                 System.out.println("(3) Leave");
                 System.out.print("> ");
                 try {
                     selection = in.nextInt();
-                    if (selection != 1 && selection != 3) {
+                    if (selection != 1 && selection != 2 && selection != 3) {
                         System.out.println("Invalid choice. Try again...");
                     } else {
                         correct_input = true;
@@ -306,6 +307,15 @@ public class Chat {
             System.out.println();
             return port;
         }
+		
+		public void put(String aliasSender,String aliasReceiver, String text) {
+			
+			
+			
+			
+			
+		}
+		
 
         /*****************************/
         /**
@@ -332,6 +342,9 @@ public class Chat {
                         System.out.println("IO Exception in Case 1.");
                     }
                     break;
+				case 2:
+              		// PUT		
+						
                 case 3:
                     try{
                         Socket sock = GetSocket(portSuccessor);
