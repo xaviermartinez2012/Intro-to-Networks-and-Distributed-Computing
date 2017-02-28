@@ -12,17 +12,6 @@ import java.nio.charset.StandardCharsets;
 **********************************/
 public class Chat {
     
-    /*
-    {
-    "type" :  "Put",
-    "parameters" :
-        {
-        "aliasSender"    : string,
-        "aliasReceiver"  : string,
-        "message"        : string
-        }
-    }
-    */
 
     // My info
     public String alias;
@@ -266,7 +255,7 @@ public class Chat {
             while (!correct_input) {
                 System.out.println("Please select an option:");
                 System.out.println("(1) Join");
-		System.out.println("(2) Put");
+				System.out.println("(2) Put");
                 System.out.println("(3) Leave");
                 System.out.print("> ");
                 try {
@@ -308,15 +297,26 @@ public class Chat {
             return port;
         }
 		
-		public void put(String aliasSender,String aliasReceiver, String text) {
-			
-			
-			
-			
-			
-		}
+	/*
+    	{
+   	 "type" :  "Put",
+    "parameters" :
+        {
+        "aliasSender"    : string,
+        "aliasReceiver"  : string,
+        "message"        : string,
+		"myPort"  		 : number
+        }
+    }
+    */
 		
-
+		public void put(String aliasSender,String aliasReceiver, String text) throws IOException {
+            JsonObject jsonPutMessageObject = Json.createObjectBuilder().add("type", "PUT")
+                    .add("parameters", Json.createObjectBuilder().add("aliasSender", aliasSender).add("aliasReceiver", aliasReceiver).add("message", text).add("myPort", myPort)).build();
+            OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
+            out.write(jsonPutMessageObject.toString());
+            out.close();
+		}
         /*****************************/
         /**
         * \brief It allows the user to interact with the system. 
