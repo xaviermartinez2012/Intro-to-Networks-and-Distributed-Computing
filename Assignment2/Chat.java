@@ -310,13 +310,43 @@ public class Chat {
     }
     */
 		
-		public void put(String aliasSender,String aliasReceiver, String text) throws IOException {
+		public void put(Socket socket, String aliasSender,String aliasReceiver, String text) throws IOException {
             JsonObject jsonPutMessageObject = Json.createObjectBuilder().add("type", "PUT")
                     .add("parameters", Json.createObjectBuilder().add("aliasSender", aliasSender).add("aliasReceiver", aliasReceiver).add("message", text).add("myPort", myPort)).build();
             OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
             out.write(jsonPutMessageObject.toString());
             out.close();
 		}
+		
+		
+		
+		public String[] putMenu(Scanner in) {
+
+			boolean correct_port = false;
+			String[] putReturn = new String[2];
+			String aliasReciev, msg;
+			while (!correct_port) {
+				System.out.println("Enter Reciever's Alias");
+				aliasReciev = in.nextLine();
+				System.out.println("Enter message");
+				msg = in.nextLine();			
+				try {
+					port = in.nextInt();
+					correct_port = true;
+				} catch (InputMismatchException input) {
+					System.out.println("Enter an interger port number.");
+				} catch (NoSuchElementException element) {
+					element.printStackTrace();
+					System.out.println("Scanner error, quitting...");
+					System.exit(-1);
+				}
+			}
+			putReturn[0] = aliasReciev;
+			putReturn[1] = msg;
+			System.out.println();
+			return putReturn;
+		}
+		
         /*****************************/
         /**
         * \brief It allows the user to interact with the system. 
@@ -343,8 +373,9 @@ public class Chat {
                     }
                     break;
 				case 2:
-              		// PUT		
-						
+					String putParameter[] = new putMenu();
+					put(alias, putParameter[0], putParameter[1], myPort);	//putParameter[0] = aliasReciever			putParameter[1] = msg
+					break;	
                 case 3:
                     try{
                         Socket sock = GetSocket(portSuccessor);
