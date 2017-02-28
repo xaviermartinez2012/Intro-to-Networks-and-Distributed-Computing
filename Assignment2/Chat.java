@@ -266,7 +266,7 @@ public class Chat {
             while (!correct_input) {
                 System.out.println("Please select an option:");
                 System.out.println("(1) Join");
-				System.out.println("(2) Put");
+		System.out.println("(2) Put");
                 System.out.println("(3) Leave");
                 System.out.print("> ");
                 try {
