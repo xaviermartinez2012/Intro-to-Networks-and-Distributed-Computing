@@ -39,7 +39,7 @@ public class Chat {
     * \class Server class "chat.java" 
     * \brief It implements the server
     **********************************/
-    private class Server implements Runnable {
+    public class Server implements Runnable {
         public Server() {
         }
 
@@ -263,7 +263,7 @@ public class Chat {
     /** 
     * \brief It implements the client.
     *********************************/
-    private class Client implements Runnable {
+    public class Client implements Runnable {
 
         public Client() {
         }
