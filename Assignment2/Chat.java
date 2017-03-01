@@ -11,18 +11,6 @@ import java.nio.charset.StandardCharsets;
 * using flooding 
 **********************************/
 public class Chat {
-    
-    /*
-    {
-    "type" :  "Put",
-    "parameters" :
-        {
-        "aliasSender"    : string,
-        "aliasReceiver"  : string,
-        "message"        : string
-        }
-    }
-    */
 
     // My info
     public String alias;
@@ -135,6 +123,17 @@ public class Chat {
             out.write(jsonAcceptMessageObject.toString());
             out.close();
         }
+        
+        /*!
+        \brief Forwards Json message to Successor via sockets.
+        \param succSocket The Socket to use.
+        \param message The Json message.
+        */
+        public void forward(Socket succSocket, JsonObject message) throws IOException{
+            OutputStreamWriter out = new OutputStreamWriter(succSocket.getOutputStream(), StandardCharsets.UTF_8);
+            out.write(message.toString());
+            out.close();
+        }
 
         /*****************************/
         /**
@@ -156,7 +155,7 @@ public class Chat {
                                 if (message.getString("type").equals("JOIN")) {
                                     int joinPort = parameters.getInt("myPort");
                                     System.out.println();
-                                    System.out.println("-- Peer at port " + joinPort + " is requesting to join.");
+                                    System.out.println("\n-- Peer at port " + joinPort + " is requesting to join.");
                                     System.out.println("-- Sending request to accept to peer at port " + joinPort + ".");
                                     Socket acceptSocket = GetSocket(joinPort);
                                     accept(acceptSocket, ipPredecessor, portPredecessor, myPort);
@@ -174,7 +173,7 @@ public class Chat {
                                     int acceptPredPort = parameters.getInt("portPred");
                                     int peerPort = parameters.getInt("myPort");
                                     System.out.println();
-                                    System.out.println("-- Peer at port " + peerPort + " is requesting to accept.");
+                                    System.out.println("\n-- Peer at port " + peerPort + " is requesting to accept.");
                                     synchronized (lock1) {
                                         System.out.println("-- Lock set --");
                                         System.out.println("-- Updating portPredecessor -> " + acceptPredPort);
@@ -188,11 +187,11 @@ public class Chat {
                                     accepted(acceptedSocket, ipPredecessor, portPredecessor, myPort);
                                 } else if (message.getString("type").equals("ACCEPTED")) {
                                     int peerPort = parameters.getInt("myPort");
-                                    System.out.println("-- Peer at port " + peerPort + " accepted connection.");
+                                    System.out.println("\n-- Peer at port " + peerPort + " accepted connection.");
                                 } else if (message.getString("type").equals("NEWSUCCESSOR")) {
                                     int newSuccessorPort = parameters.getInt("portSuccessor");
                                     int peerPort = parameters.getInt("myPort");
-                                    System.out.println("-- Peer at port " + peerPort
+                                    System.out.println("\n-- Peer at port " + peerPort
                                             + " is requesting to update portSuccessor information.");
                                     synchronized (lock1) {
                                         System.out.println("-- Lock set --");
@@ -200,10 +199,29 @@ public class Chat {
                                         portSuccessor = newSuccessorPort;
                                         System.out.println("-- Unlocking --");
                                     }
+                                } else if (message.getString("type").equals("PUT")) {
+                                    String senderAlias = parameters.getString("aliasSender");
+                                    String receiverAlias = parameters.getString("aliasReceiver");
+                                    int peerPort = parameters.getInt("myPort");
+                                    System.out.println("\n-- Peer at port " + peerPort + " has sent a message.");
+                                    if (senderAlias.equals(alias)) {
+                                        System.out.println("-- ERROR: The alias you specified does match a node within this network.");
+                                    }
+                                    else if (receiverAlias.equals(alias)) {
+                                        System.out.println("-- Alias confirmed. Displaying message:");
+                                        synchronized (lock1) {
+                                            System.out.println("-- \"" + parameters.getString("message") + "\"");
+                                        }
+                                    }
+                                    else {
+                                        System.out.println("-- Alias not confirmed. Forwarding to successor.");
+                                        Socket forwardSocket = GetSocket(portSuccessor);
+                                        forward(forwardSocket, message);
+                                    }
                                 } else if (message.getString("type").equals("LEAVE")) {
                                     int newPortPredecessor = parameters.getInt("portPred");
                                     int peerPort = parameters.getInt("myPort");
-                                    System.out.println("-- Peer at port " + peerPort + " is leaving.");
+                                    System.out.println("\n-- Peer at port " + peerPort + " is leaving.");
                                     synchronized (lock1) {
                                         System.out.println("-- Lock set --");
                                         System.out.println("-- Updating portPredecessor -> " + newPortPredecessor);
@@ -214,7 +232,7 @@ public class Chat {
                                     System.out.println("-- Sending successor information to predecessor at port "
                                             + portPredecessor + ".");
                                     NewSuccessor(predSocket, "127.0.0.1", myPort, myPort);
-                                }
+                                }			
                             } catch (JsonException j) {
                                 System.out.println("Json exception exiting...");
                                 System.exit(-1);
@@ -243,7 +261,7 @@ public class Chat {
 
     /*****************************/
     /** 
-    * \brief It implements the client
+    * \brief It implements the client.
     *********************************/
     private class Client implements Runnable {
 
@@ -273,6 +291,36 @@ public class Chat {
         }
 
         /*
+            {
+        "type" :  "Put",
+        "parameters" :
+            {
+            "aliasSender"    : string,
+            "aliasReceiver"  : string,
+            "message"        : string,
+            "myPort"  		 : number
+            }
+        }
+        */
+        /*!
+        \brief Sends "PUT" message via sockets.
+        \param socket The Socket to use.
+        \param aliasSender The alias of the sender.
+        \param aliasReceiver The alias of the reciever.
+        \param text The message.
+        */
+        public void put(Socket socket, String aliasSender, String aliasReceiver, String text) throws IOException {
+            JsonObject jsonPutMessageObject = Json.createObjectBuilder().add("type", "PUT")
+                    .add("parameters",
+                            Json.createObjectBuilder().add("aliasSender", aliasSender)
+                                    .add("aliasReceiver", aliasReceiver).add("message", text).add("myPort", myPort))
+                    .build();
+            OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
+            out.write(jsonPutMessageObject.toString());
+            out.close();
+        }
+
+        /*
         {
         "type" :  "LEAVE",
         "parameters" :
@@ -287,12 +335,14 @@ public class Chat {
         \param socket The Socket to use.
         */
         public void leave(Socket socket) throws IOException {
-            JsonObject jsonJoinMessageObject = Json.createObjectBuilder().add("type", "LEAVE")
-                    .add("parameters", Json.createObjectBuilder().add("ipPred", ipPredecessor).add("portPred", portPredecessor).add("myPort", myPort)).build();
+            JsonObject jsonJoinMessageObject = Json
+                    .createObjectBuilder().add("type", "LEAVE").add("parameters", Json.createObjectBuilder()
+                            .add("ipPred", ipPredecessor).add("portPred", portPredecessor).add("myPort", myPort))
+                    .build();
             OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
             out.write(jsonJoinMessageObject.toString());
             out.close();
-        }       
+        }
 
         /*!
         \brief Provides a text-based user menu.
@@ -304,11 +354,12 @@ public class Chat {
             while (!correct_input) {
                 System.out.println("Please select an option:");
                 System.out.println("(1) Join");
+                System.out.println("(2) Put");
                 System.out.println("(3) Leave");
                 System.out.print("> ");
                 try {
                     selection = in.nextInt();
-                    if (selection != 1 && selection != 3) {
+                    if (selection != 1 && selection != 2 && selection != 3) {
                         System.out.println("Invalid choice. Try again...");
                     } else {
                         correct_input = true;
@@ -323,6 +374,7 @@ public class Chat {
             }
             return selection;
         }
+
         /*!
         \brief Provides a text-based user menu for the JOIN functionality.
         \param in The scanner to use for user input.
@@ -346,6 +398,36 @@ public class Chat {
             }
             System.out.println();
             return port;
+        }
+        /*!
+        \brief Provides a text-based user menu for the PUT functionality.
+        \param in The scanner to use for user input.
+        */
+        public String[] putMenu(Scanner in) {
+            boolean correct_input = false;
+            String[] putReturn = new String[2];
+            String aliasReciev = ""; 
+            String msg = "";
+            while (!correct_input) {
+                try {
+                    System.out.println("Please enter reciever's alias.");
+                    System.out.print("> ");
+                    in.nextLine();
+                    aliasReciev = in.nextLine();
+                    System.out.println("Please enter message.");
+                    System.out.print("> ");
+                    msg = in.nextLine();
+                    correct_input = true;
+                } catch (NoSuchElementException element) {
+                    element.printStackTrace();
+                    System.out.println("Scanner error, quitting...");
+                    System.exit(-1);
+                }
+            }
+            putReturn[0] = aliasReciev;
+            putReturn[1] = msg;
+            System.out.println();
+            return putReturn;
         }
 
         /*****************************/
@@ -373,14 +455,23 @@ public class Chat {
                         System.out.println("IO Exception in Case 1.");
                     }
                     break;
+                case 2:
+                    String putParameter[] = putMenu(in);
+                    try {
+                        Socket sock = GetSocket(portSuccessor);
+                        put(sock, alias, putParameter[0], putParameter[1]);
+                    } catch (IOException io) {
+                        System.out.println("IO Exception in Case 2.");
+                    }
+                    break;
                 case 3:
-                    try{
+                    try {
                         Socket sock = GetSocket(portSuccessor);
                         leave(sock);
                     } catch (IOException io) {
                         io.printStackTrace();
                         System.out.println("IO Exception in Case 3.");
-                    } 
+                    }
                     System.out.println("Exiting...");
                     in.close();
                     System.exit(0);
@@ -391,9 +482,9 @@ public class Chat {
 
     /*****************************/
     /**
-    * Starts the threads with the client and server:
-    * \param Id unique identifier of the process
-    * \param port where the server will listen
+    * Starts the threads with the client and server.
+    * \param alias unique identifier of the process.
+    * \param myPort where the server will listen.
     **********************************/
     public Chat(String alias, int myPort) {
 
@@ -413,7 +504,7 @@ public class Chat {
             System.exit(-1);
         }
     }
-    
+
     /*!
     \brief The main.
     \param args The arguments: <alias> <myPort>.
