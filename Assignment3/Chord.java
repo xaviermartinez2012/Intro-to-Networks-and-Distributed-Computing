@@ -53,10 +53,10 @@ public void put(long guidObject, InputStream stream) throws RemoteException {
 	}
 }
 
-public FileInputStream get(long guidObject) throws RemoteException {
+public FileStream get(long guidObject) throws RemoteException {
 	String fileName = "./" + guid + "/repository/" + guidObject;
 	try {
-		FileInputStream file = new FileInputStream(fileName);
+		FileStream file = new FileStream(fileName);
         return file;
 	} catch (FileNotFoundException fnf) {
 		throw (new RemoteException("-- ERROR: The file specified does not exist!"));
