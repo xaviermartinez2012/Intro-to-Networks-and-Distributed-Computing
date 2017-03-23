@@ -53,7 +53,7 @@ public void put(long guidObject, InputStream stream) throws RemoteException {
 	}
 }
 
-public InputStream get(long guidObject) throws RemoteException {
+public FileInputStream get(long guidObject) throws RemoteException {
 	String fileName = "./" + guid + "/repository/" + guidObject;
 	try {
 		FileInputStream file = new FileInputStream(fileName);
