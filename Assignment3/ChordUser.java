@@ -69,8 +69,7 @@ public class ChordUser {
                                 long guidObject = md5(fileName);
                                 // If you are using windows you have to use
                                 // 				path = ".\\"+  guid +"\\"+fileName; // path to file
-                                path = "./" + guid + "/" + fileName; // path to file
-                                FileStream file = new FileStream(path);
+                                FileStream file = new FileStream(fileName);
                                 ChordMessageInterface peer = chord.locateSuccessor(guidObject);
                                 peer.put(guidObject, file); // put file into ring
                             } catch (IOException e) {
@@ -87,6 +86,19 @@ public class ChordUser {
                             // Now you can obtain the conted of the file in the chord using
                             // Call stream = peer.get(guidObject)
                             // Store the content of stream in the file that you create
+                            try {
+                                String path;
+                                String fileName = tokens[1];
+                                long guidObject = md5(fileName);
+                                ChordMessageInterface peer = chord.locateSuccessor(guidObject);
+                                InputStream stream = peer.get(guidObject);
+                                FileOutputStream output = new FileOutputStream(fileName);
+                                while (stream.available() > 0) 
+                                    output.write(stream.read());
+                                output.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }
                         if (tokens[0].equals("delete") && tokens.length == 2) {
                             // Obtain the chord that is responsable for the file:
