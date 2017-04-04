@@ -1,6 +1,7 @@
 import java.io.*;
 import java.io.FileNotFoundException;
 import java.net.*;
+import java.nio.file.*;
 import java.rmi.*;
 import java.rmi.registry.*;
 import java.rmi.server.*;
@@ -44,10 +45,10 @@ public Boolean isKeyInOpenInterval(long key, long key1, long key2) {
 }
 
 public void put(long guidObject, InputStream stream) throws RemoteException {
+    String fileName = "./" + guid + "/repository/" + guidObject;
+
     try {
-	String			fileName = "./" + guid + "/repository/" +
-	    guidObject;
-	FileOutputStream	output = new FileOutputStream(fileName);
+	FileOutputStream output = new FileOutputStream(fileName);
 	while (stream.available() > 0)
 	    output.write(stream.read());
 	output.close();
@@ -71,7 +72,14 @@ public FileStream get(long guidObject) throws RemoteException {
 }
 
 public void delete(long guidObject) throws RemoteException {
-	// TODO delete the file ./port/repository/guid
+    try {
+	Path fileName = Paths.get("./" + guid + "/repository/" + guidObject);
+	Files.delete(fileName);
+    } catch (NoSuchFileException x) {
+	throw (new RemoteException("-- ERROR: The file specified does no exist!"));
+    } catch (IOException x) {
+	throw (new RemoteException("-- ERROR: IO Exception"));
+    }
 }
 
 public long getId() throws RemoteException {
@@ -88,8 +96,7 @@ public ChordMessageInterface getPredecessor() throws RemoteException {
 
 public ChordMessageInterface locateSuccessor(long key) throws RemoteException {
     if (key == guid)
-	throw new IllegalArgumentException("Key must be distinct that  " +
-	    guid);
+	throw new IllegalArgumentException("Key must be distinct that  " + guid);
     if (successor.getId() != guid) {
 	if (isKeyInSemiCloseInterval(key, guid, successor.getId()))
 	    return successor;
