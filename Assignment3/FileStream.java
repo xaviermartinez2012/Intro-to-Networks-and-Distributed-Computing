@@ -11,7 +11,6 @@ IOException    {
 
     size = (int)file.length();
     byteBuffer = new byte[size];
-
     FileInputStream	fileInputStream = new FileInputStream(pathName);
     int			i = 0;
     while (fileInputStream.available() > 0)

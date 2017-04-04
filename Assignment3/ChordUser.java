@@ -63,12 +63,10 @@ public ChordUser(int p) {
 			if (tokens[0].equals("print"))
 			    chord.Print();
 			if (tokens[0].equals("write") && (tokens.length == 2)) {
+			    String path;
+			    String fileName = tokens[1];
+			    long guidObject = md5(fileName);
 			    try {
-				String path;
-				String fileName = tokens[1];
-				long guidObject = md5(fileName);
-					// If you are using windows you have to use
-				// path = ".\\"+  guid +"\\"+fileName; // path to file
 				FileStream file = new FileStream(
 					fileName);
 				ChordMessageInterface peer =
@@ -79,21 +77,12 @@ public ChordUser(int p) {
 			    }
 			}
 			if (tokens[0].equals("read") && (tokens.length == 2)) {
-					// TODO: Create a local
-				// "./"+  guid +"/"+fileName
-					// where filename = tokens[1];
-				// Obtain the chord that is responsable for the file:
-					// peer = chord.locateSuccessor(guidObject);
-				// where guidObject = md5(fileName);
-					// Now you can obtain the conted of the file in the chord using
-				// Call stream = peer.get(guidObject)
-					// Store the content of stream in the file that you create
+			    String path;
+			    String fileName = tokens[1];
+			    path = "./" + guid + "/" + fileName;
+			    long guidObject = md5(
+				    fileName);
 			    try {
-				String path;
-				String fileName = tokens[1];
-				path = "./" + guid + "/" + fileName;
-				long guidObject = md5(
-					fileName);
 				ChordMessageInterface peer =
 				    chord.locateSuccessor(guidObject);
 				InputStream stream = peer.get(guidObject);
@@ -106,12 +95,17 @@ public ChordUser(int p) {
 				e.printStackTrace();
 			    }
 			}
-			if (tokens[0].equals(
-				"delete") && (tokens.length == 2)) {
-					// Obtain the chord that is responsable for the file:
-				// peer = chord.locateSuccessor(guidObject);
-					// where guidObject = md5(fileName)
-				// Call peer.delete(guidObject)
+			if (tokens[0].equals("delete") && (tokens.length == 2)) {
+			    String fileName = tokens[1];
+			    long guidObject = md5(
+				    fileName);
+			    try {
+				ChordMessageInterface peer =
+				    chord.locateSuccessor(guidObject);
+				peer.delete(guidObject);
+			    } catch (IOException e) {
+				e.printStackTrace();
+			    }
 			}
 		    }
 		} catch (RemoteException e) {
