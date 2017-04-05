@@ -32,16 +32,16 @@ public ChordMessageInterface rmiChord(String ip, int port) {
 }
 
 public void setSuccessor(ChordMessageInterface s) throws RemoteException {
-	successor = s;
-	finger[0] = s;
+    successor = s;
+    finger[0] = s;
 }
 
 public void setPredecessor(ChordMessageInterface p) throws RemoteException {
-	predecessor = p;
+    predecessor = p;
 }
 
-public void cancelTimer(){
-	timer.cancel();
+public void cancelTimer() {
+    timer.cancel();
 }
 
 public Boolean isKeyInSemiCloseInterval(long key, long key1, long key2) {
