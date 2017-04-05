@@ -17,6 +17,7 @@ ChordMessageInterface predecessor;
 ChordMessageInterface[] finger;
 int nextFinger;
 long guid;				// GUID (i)
+Timer timer;
 
 public ChordMessageInterface rmiChord(String ip, int port) {
     ChordMessageInterface chord = null;
@@ -28,6 +29,19 @@ public ChordMessageInterface rmiChord(String ip, int port) {
 	e.printStackTrace();
     }
     return chord;
+}
+
+public void setSuccessor(ChordMessageInterface s) throws RemoteException {
+    successor = s;
+    finger[0] = s;
+}
+
+public void setPredecessor(ChordMessageInterface p) throws RemoteException {
+    predecessor = p;
+}
+
+public void cancelTimer() {
+    timer.cancel();
 }
 
 public Boolean isKeyInSemiCloseInterval(long key, long key1, long key2) {
@@ -207,7 +221,7 @@ public Chord(int port, long guid) throws RemoteException {
 
     predecessor = null;
     successor = this;
-    Timer timer = new Timer();
+    timer = new Timer();
     timer.scheduleAtFixedRate(new TimerTask() {
 	    @Override
 	    public void run() {

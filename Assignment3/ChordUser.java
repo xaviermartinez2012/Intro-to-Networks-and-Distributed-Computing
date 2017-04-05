@@ -107,6 +107,18 @@ public ChordUser(int p) {
 				e.printStackTrace();
 			    }
 			}
+			if (tokens[0].equals("leave") && (tokens.length == 1)) {
+			    File folder = new File("./" + guid + "/repository");
+			    File[] files = folder.listFiles();
+			    for (File file: files)
+				file.renameTo(new File(
+					"./" + chord.successor.getId() + "/repository/" + file.getName()));
+			    chord.cancelTimer();
+			    chord.successor.setPredecessor(chord.predecessor);
+			    chord.predecessor.setSuccessor(chord.successor);
+			    timer1.cancel();
+			    System.exit(0);
+			}
 		    }
 		} catch (RemoteException e) {
 		    System.out.println(e);
