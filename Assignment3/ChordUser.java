@@ -8,6 +8,8 @@ import java.util.*;
 
 public class ChordUser {
 int port;
+long guid;
+Chord chord;
 
 private long md5(String objectName) {
     try {
@@ -22,6 +24,14 @@ private long md5(String objectName) {
     return 0;
 }
 
+public long getGuid() {
+    return guid;
+}
+
+public Chord getChord() {
+    return chord;
+}
+
 public ChordUser(int p) {
     port = p;
 
@@ -30,8 +40,8 @@ public ChordUser(int p) {
 	    @Override
 	    public void run() {
 		try {
-		    long guid = md5("" + port);
-		    Chord chord = new Chord(port, guid);
+		    guid = md5("" + port);
+		    chord = new Chord(port, guid);
 		    try {
 			Files.createDirectories(Paths.get(
 				guid + "/repository"));
@@ -65,10 +75,11 @@ public ChordUser(int p) {
 			if (tokens[0].equals("write") && (tokens.length == 2)) {
 			    String path;
 			    String fileName = tokens[1];
+			    path = "./" + guid + "/" + fileName;
 			    long guidObject = md5(fileName);
 			    try {
 				FileStream file = new FileStream(
-					fileName);
+					path);
 				ChordMessageInterface peer =
 				    chord.locateSuccessor(guidObject);
 				peer.put(guidObject, file);	// put file into ring
@@ -107,20 +118,8 @@ public ChordUser(int p) {
 				e.printStackTrace();
 			    }
 			}
-			if (tokens[0].equals("leave") && (tokens.length == 1)) {
-			    if (chord.successor.getId() != guid) {
-			    File folder = new File("./" + guid + "/repository");
-				File[] files = folder.listFiles();
-				for (File file: files)
-				    file.renameTo(new File(
-					    "./" + chord.successor.getId() + "/repository/" + file.getName()));
-				chord.cancelTimer();
-				chord.successor.setPredecessor(chord.predecessor);
-				chord.predecessor.setSuccessor(chord.successor);
-			    }
-				timer1.cancel();
+			if (tokens[0].equals("leave") && (tokens.length == 1))
 			    System.exit(0);
-			}
 		    }
 		} catch (RemoteException e) {
 		    System.out.println(e);
@@ -134,6 +133,28 @@ static public void main(String args[]) {
 	throw new IllegalArgumentException("Parameter: <port>");
     try {
 	ChordUser chordUser = new ChordUser(Integer.parseInt(args[0]));
+	Runtime.getRuntime().addShutdownHook(new Thread() {
+		@Override
+		public void run() {
+		    System.out.println("\nExiting...");
+		    Chord chord = chordUser.getChord();
+		    long guid = chordUser.getGuid();
+		    try {
+			if (chord.successor.getId() != guid) {
+			    File folder = new File("./" + guid + "/repository");
+			    File[] files = folder.listFiles();
+			    for (File file: files)
+				file.renameTo(new File(
+					"./" + chord.successor.getId() + "/repository/" + file.getName()));
+			    chord.cancelTimer();
+			    chord.successor.setPredecessor(chord.predecessor);
+			    chord.predecessor.setSuccessor(chord.successor);
+			}
+		    } catch (RemoteException remote) {
+			System.out.println(remote);
+		    }
+		}
+	    });
     } catch (Exception e) {
 	e.printStackTrace();
 	System.exit(1);

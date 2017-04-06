@@ -12,6 +12,7 @@ public long getId() throws RemoteException;
 public void setSuccessor(ChordMessageInterface s) throws RemoteException;
 public void setPredecessor(ChordMessageInterface p) throws RemoteException;
 public void cancelTimer() throws RemoteException;
+public void restartTimer() throws RemoteException;
 public void put(long guidObject, InputStream file) throws IOException,
 RemoteException;
 public InputStream get(long guidObject) throws IOException, RemoteException;
