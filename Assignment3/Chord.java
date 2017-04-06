@@ -33,15 +33,39 @@ public ChordMessageInterface rmiChord(String ip, int port) {
 
 public void setSuccessor(ChordMessageInterface s) throws RemoteException {
     successor = s;
-    finger[0] = s;
+    if (successor.getId() == guid) {
+	for (int j = 0; j < M; j++)
+	    finger[j] = null;
+	cancelTimer();
+    }
 }
 
 public void setPredecessor(ChordMessageInterface p) throws RemoteException {
-    predecessor = p;
+    if (p.getId() == guid) {
+	predecessor = null;
+	cancelTimer();
+    } else {
+	predecessor = p;
+    }
 }
 
 public void cancelTimer() {
     timer.cancel();
+    timer.purge();
+}
+
+public void restartTimer() {
+    timer.cancel();
+    timer.purge();
+    timer = new Timer();
+    timer.scheduleAtFixedRate(new TimerTask() {
+	    @Override
+	    public void run() {
+		stabilize();
+		fixFingers();
+		checkPredecessor();
+	    }
+	}, 500, 500);
 }
 
 public Boolean isKeyInSemiCloseInterval(long key, long key1, long key2) {
@@ -136,6 +160,7 @@ public void joinRing(String ip, int port) throws RemoteException {
 	    (ChordMessageInterface)(registry.lookup("Chord"));
 	predecessor = null;
 	successor = chord.locateSuccessor(this.getId());
+	successor.restartTimer();
 	System.out.println("Joining ring");
     } catch (RemoteException | NotBoundException e) {
 	successor = this;
@@ -163,8 +188,13 @@ public void stabilize() {
 	    if ((x != null &&x.getId() != this.getId()) &&
 		isKeyInOpenInterval(x.getId(), this.getId(), successor.getId()))
 		successor = x;
-	    if (successor.getId() != getId())
+	    if (successor.getId() != getId()) {
 		successor.notify(this);
+		if (successor.getPredecessor().getId() == guid) {
+		    for (int j = 0; j < M; j++)
+			finger[j] = successor;
+		}
+	    }
 	}
     } catch (RemoteException | NullPointerException e1) {
 	findingNextSuccessor();
@@ -221,7 +251,7 @@ public Chord(int port, long guid) throws RemoteException {
 
     predecessor = null;
     successor = this;
-    timer = new Timer();
+    this.timer = new Timer();
     timer.scheduleAtFixedRate(new TimerTask() {
 	    @Override
 	    public void run() {
