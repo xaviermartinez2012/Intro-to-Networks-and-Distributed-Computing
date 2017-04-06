@@ -53,7 +53,7 @@ public ChordUser(int p) {
 			+
 			guid + "/file");
 		    System.out.println(
-			"\tread <file>\n\tdelete <file>\n\tprint");
+			"\tread <file>\n\tdelete <file>\n\tprint\n\tleave");
 
 		    Scanner scan = new Scanner(System.in);
 		    String delims = "[ ]+";
