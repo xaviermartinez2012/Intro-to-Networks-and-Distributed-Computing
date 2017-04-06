@@ -59,6 +59,7 @@ public ChordUser(int p) {
 		    String delims = "[ ]+";
 		    String command = "";
 		    while (true) {
+			System.out.print("> ");
 			String text = scan.nextLine();
 			String[] tokens = text.split(delims);
 			if (tokens[0].equals("join") && (tokens.length == 3)) {

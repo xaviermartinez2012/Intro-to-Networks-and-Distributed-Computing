@@ -153,7 +153,7 @@ RemoteException {
 
 public void joinRing(String ip, int port) throws RemoteException {
     try {
-	System.out.println("Get Registry to joining ring");
+	System.out.println("Get Registry to join ring");
 	Registry		registry = LocateRegistry.getRegistry(ip, port);
 	ChordMessageInterface	chord =
 	    (ChordMessageInterface)(registry.lookup("Chord"));
