@@ -108,15 +108,17 @@ public ChordUser(int p) {
 			    }
 			}
 			if (tokens[0].equals("leave") && (tokens.length == 1)) {
+			    if (chord.successor.getId() != guid) {
 			    File folder = new File("./" + guid + "/repository");
-			    File[] files = folder.listFiles();
-			    for (File file: files)
-				file.renameTo(new File(
-					"./" + chord.successor.getId() + "/repository/" + file.getName()));
-			    chord.cancelTimer();
-			    chord.successor.setPredecessor(chord.predecessor);
-			    chord.predecessor.setSuccessor(chord.successor);
-			    timer1.cancel();
+				File[] files = folder.listFiles();
+				for (File file: files)
+				    file.renameTo(new File(
+					    "./" + chord.successor.getId() + "/repository/" + file.getName()));
+				chord.cancelTimer();
+				chord.successor.setPredecessor(chord.predecessor);
+				chord.predecessor.setSuccessor(chord.successor);
+			    }
+				timer1.cancel();
 			    System.exit(0);
 			}
 		    }
