@@ -148,7 +148,6 @@ public ChordMessageInterface locateSuccessor(long key) throws RemoteException {
 
 public ChordMessageInterface closestPrecedingNode(long key) throws
 RemoteException {
-	// todo
     return successor;
 }
 
@@ -195,6 +194,19 @@ public void stabilize() {
 			finger[j] = successor;
 		}
 	    }
+	    File	folder = new File("./" + guid + "/repository");
+	    File[]	files = folder.listFiles();
+	    for (File file: files) {
+		String fileName = file.getName();
+		if (fileName.contains("."))
+		    continue;
+		long	fileGuid = Long.parseLong(fileName);
+		long	destinationGuid = locateSuccessor(fileGuid).getId();
+		if (destinationGuid == guid)
+		    continue;
+		file.renameTo(new File(
+			"./" + destinationGuid + "/repository/" + fileName));
+	    }
 	}
     } catch (RemoteException | NullPointerException e1) {
 	findingNextSuccessor();
@@ -204,11 +216,8 @@ public void stabilize() {
 public void notify(ChordMessageInterface j) throws RemoteException {
     if ((predecessor == null) ||
 	(predecessor !=
-	 null &&isKeyInOpenInterval(j.getId(), predecessor.getId(), guid))) {
-	// TODO
-	// transfer keys in the range [j,i) to j;
+	 null &&isKeyInOpenInterval(j.getId(), predecessor.getId(), guid)))
 	predecessor = j;
-    }
 }
 
 public void fixFingers() {
