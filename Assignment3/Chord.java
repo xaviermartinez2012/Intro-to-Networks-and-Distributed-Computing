@@ -7,6 +7,12 @@ import java.rmi.registry.*;
 import java.rmi.server.*;
 import java.util.*;
 
+/*****************************/
+/**
+* \brief Functions for the Chord of 
+* the ring.
+* 
+**********************************/
 public class Chord extends java.rmi.server.UnicastRemoteObject implements
     ChordMessageInterface {
 public static final int M = 2;
@@ -19,6 +25,12 @@ int nextFinger;
 long guid;				// GUID (i)
 Timer timer;
 
+/*!
+\brief
+\param ip
+\param port
+\return 
+*/
 public ChordMessageInterface rmiChord(String ip, int port) {
     ChordMessageInterface chord = null;
 
@@ -30,7 +42,10 @@ public ChordMessageInterface rmiChord(String ip, int port) {
     }
     return chord;
 }
-
+/*!
+\brief change the sucessor
+\param s
+*/
 public void setSuccessor(ChordMessageInterface s) throws RemoteException {
     successor = s;
     if (successor.getId() == guid) {
@@ -39,7 +54,10 @@ public void setSuccessor(ChordMessageInterface s) throws RemoteException {
 	cancelTimer();
     }
 }
-
+/*!
+\brief change the predecessor
+\param p
+*/
 public void setPredecessor(ChordMessageInterface p) throws RemoteException {
     if (p.getId() == guid) {
 	predecessor = null;
@@ -48,12 +66,18 @@ public void setPredecessor(ChordMessageInterface p) throws RemoteException {
 	predecessor = p;
     }
 }
-
+/*****************************/
+/**
+* \brief cancels the timer
+**********************************/
 public void cancelTimer() {
     timer.cancel();
     timer.purge();
 }
-
+/*****************************/
+/**
+* \brief restarts the timer
+**********************************/
 public void restartTimer() {
     timer.cancel();
     timer.purge();
@@ -67,21 +91,37 @@ public void restartTimer() {
 	    }
 	}, 500, 500);
 }
-
+/*!
+\brief
+\param key
+\param key1
+\param key2
+\return 
+*/
 public Boolean isKeyInSemiCloseInterval(long key, long key1, long key2) {
     if (key1 < key2)
 	return key > key1 && key <= key2;
     else
 	return key > key1 || key <= key2;
 }
-
+/*!
+\brief
+\param key
+\param key1
+\param key2
+\return 
+*/
 public Boolean isKeyInOpenInterval(long key, long key1, long key2) {
     if (key1 < key2)
 	return key > key1 && key < key2;
     else
 	return key > key1 || key < key2;
 }
-
+/*!
+\brief
+\param guidObject
+\param stream
+*/
 public void put(long guidObject, InputStream stream) throws RemoteException {
     String fileName = "./" + guid + "/repository/" + guidObject;
 
@@ -94,7 +134,11 @@ public void put(long guidObject, InputStream stream) throws RemoteException {
 	System.out.println(e);
     }
 }
-
+/*!
+\brief retrieve a file in the ring
+\param guidobject the file to retrieve
+\return the file
+*/
 public FileStream get(long guidObject) throws RemoteException {
     String fileName = "./" + guid + "/repository/" + guidObject;
 
@@ -108,7 +152,10 @@ public FileStream get(long guidObject) throws RemoteException {
 	throw (new RemoteException("-- ERROR: IO Exception"));
     }
 }
-
+/*!
+\brief delete a file in the ring
+\param guidobject the file to delete
+*/
 public void delete(long guidObject) throws RemoteException {
     try {
 	Path fileName = Paths.get("./" + guid + "/repository/" + guidObject);
@@ -119,19 +166,32 @@ public void delete(long guidObject) throws RemoteException {
 	throw (new RemoteException("-- ERROR: IO Exception"));
     }
 }
-
+/*!
+\brief get guid 
+\return guid
+*/
 public long getId() throws RemoteException {
     return guid;
 }
-
+/*!
+\brief checks for status of this chord
+\return state of the chord in boolean
+*/
 public boolean isAlive() throws RemoteException {
     return true;
 }
-
+/*!
+\brief gets the prefedd
+\return the predecessor
+*/
 public ChordMessageInterface getPredecessor() throws RemoteException {
     return predecessor;
 }
-
+/*!
+\brief
+\param 
+\return 
+*/
 public ChordMessageInterface locateSuccessor(long key) throws RemoteException {
     if (key == guid)
 	throw new IllegalArgumentException("Key must be distinct that  " + guid);
@@ -145,12 +205,20 @@ public ChordMessageInterface locateSuccessor(long key) throws RemoteException {
     }
     return successor;
 }
-
+/*!
+\brief
+\param 
+\return 
+*/
 public ChordMessageInterface closestPrecedingNode(long key) throws
 RemoteException {
     return successor;
 }
-
+/*!
+\brief
+\param 
+\return 
+*/
 public void joinRing(String ip, int port) throws RemoteException {
     try {
 	System.out.println("Get Registry to join ring");
@@ -165,7 +233,11 @@ public void joinRing(String ip, int port) throws RemoteException {
 	successor = this;
     }
 }
-
+/*!
+\brief
+\param 
+\return 
+*/
 public void findingNextSuccessor() {
     int i;
 
@@ -179,7 +251,11 @@ public void findingNextSuccessor() {
 	}
     }
 }
-
+/*!
+\brief
+\param 
+\return 
+*/
 public void stabilize() {
     try {
 	if (successor != null) {
@@ -212,14 +288,22 @@ public void stabilize() {
 	findingNextSuccessor();
     }
 }
-
+/*!
+\brief
+\param 
+\return 
+*/
 public void notify(ChordMessageInterface j) throws RemoteException {
     if ((predecessor == null) ||
 	(predecessor !=
 	 null &&isKeyInOpenInterval(j.getId(), predecessor.getId(), guid)))
 	predecessor = j;
 }
-
+/*!
+\brief
+\param 
+\return 
+*/
 public void fixFingers() {
     long id = guid;
 
@@ -239,7 +323,11 @@ public void fixFingers() {
 	e.printStackTrace();
     }
 }
-
+/*!
+\brief
+\param 
+\return 
+*/
 public void checkPredecessor() {
     try {
 	if (predecessor != null && !predecessor.isAlive())
@@ -249,7 +337,11 @@ public void checkPredecessor() {
 	// e.printStackTrace();
     }
 }
-
+/*!
+\brief
+\param 
+\return 
+*/
 public Chord(int port, long guid) throws RemoteException {
     int j;
 
@@ -278,7 +370,11 @@ public Chord(int port, long guid) throws RemoteException {
 	throw e;
     }
 }
-
+/*!
+\brief
+\param 
+\return 
+*/
 void Print() {
     int i;
 
