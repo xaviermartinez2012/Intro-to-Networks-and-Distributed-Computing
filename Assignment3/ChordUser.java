@@ -43,8 +43,8 @@ public long getGuid() {
     return guid;
 }
 /*!
-\brief
-\return 
+\brief get chord of User
+\return chord
 */
 public Chord getChord() {
     return chord;
@@ -150,7 +150,7 @@ public ChordUser(int p) {
 	}, 1000, 1000);
 }
 /*!
-\brief
+\brief 
 \param args[] user input
 */
 static public void main(String args[]) {
