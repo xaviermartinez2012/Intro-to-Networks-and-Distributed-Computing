@@ -26,10 +26,10 @@ long guid;				// GUID (i)
 Timer timer;
 
 /*!
-\brief
-\param ip
-\param port
-\return 
+\brief create an chord between user
+\param ip ip of the other user
+\param port of other user
+\return the chord
 */
 public ChordMessageInterface rmiChord(String ip, int port) {
     ChordMessageInterface chord = null;
@@ -44,7 +44,7 @@ public ChordMessageInterface rmiChord(String ip, int port) {
 }
 /*!
 \brief change the sucessor
-\param s
+\param s sucessor
 */
 public void setSuccessor(ChordMessageInterface s) throws RemoteException {
     successor = s;
@@ -56,7 +56,7 @@ public void setSuccessor(ChordMessageInterface s) throws RemoteException {
 }
 /*!
 \brief change the predecessor
-\param p
+\param p predecessor
 */
 public void setPredecessor(ChordMessageInterface p) throws RemoteException {
     if (p.getId() == guid) {
@@ -92,11 +92,11 @@ public void restartTimer() {
 	}, 500, 500);
 }
 /*!
-\brief
-\param key
-\param key1
-\param key2
-\return 
+\brief 		check if key is the semi close interval (]
+\param key	key of the file
+\param key1	key of user1
+\param key2	key of user2
+\return 	true or false
 */
 public Boolean isKeyInSemiCloseInterval(long key, long key1, long key2) {
     if (key1 < key2)
@@ -105,11 +105,11 @@ public Boolean isKeyInSemiCloseInterval(long key, long key1, long key2) {
 	return key > key1 || key <= key2;
 }
 /*!
-\brief
-\param key
-\param key1
-\param key2
-\return 
+\brief		check if key is in the open interval (not including end)
+\param key	key of the file
+\param key1	key of user1
+\param key2	key of user2
+\return 	true or false
 */
 public Boolean isKeyInOpenInterval(long key, long key1, long key2) {
     if (key1 < key2)
@@ -118,9 +118,9 @@ public Boolean isKeyInOpenInterval(long key, long key1, long key2) {
 	return key > key1 || key < key2;
 }
 /*!
-\brief
-\param guidObject
-\param stream
+\brief write the file
+\param guidObject	guid of the file
+\param stream		the file
 */
 public void put(long guidObject, InputStream stream) throws RemoteException {
     String fileName = "./" + guid + "/repository/" + guidObject;
@@ -167,7 +167,7 @@ public void delete(long guidObject) throws RemoteException {
     }
 }
 /*!
-\brief get guid 
+\brief get guid oh node
 \return guid
 */
 public long getId() throws RemoteException {
@@ -188,9 +188,9 @@ public ChordMessageInterface getPredecessor() throws RemoteException {
     return predecessor;
 }
 /*!
-\brief
-\param 
-\return 
+\brief	find the successor of an obj
+\param 	key key of the obj
+\return the sucessor
 */
 public ChordMessageInterface locateSuccessor(long key) throws RemoteException {
     if (key == guid)
@@ -206,18 +206,18 @@ public ChordMessageInterface locateSuccessor(long key) throws RemoteException {
     return successor;
 }
 /*!
-\brief
-\param 
-\return 
+\brief	func to find the closest preceding node
+\param 	key	key of the obj
+\return the successor of the obj
 */
 public ChordMessageInterface closestPrecedingNode(long key) throws
 RemoteException {
     return successor;
 }
 /*!
-\brief
-\param 
-\return 
+\brief	func to join the ring
+\param ip	ip of the connecting predessor
+\param port	port of the connecting prefessor
 */
 public void joinRing(String ip, int port) throws RemoteException {
     try {
@@ -234,9 +234,7 @@ public void joinRing(String ip, int port) throws RemoteException {
     }
 }
 /*!
-\brief
-\param 
-\return 
+\brief	func to find the next successor
 */
 public void findingNextSuccessor() {
     int i;
@@ -252,9 +250,7 @@ public void findingNextSuccessor() {
     }
 }
 /*!
-\brief
-\param 
-\return 
+\brief	func to stabalize when user leaves
 */
 public void stabilize() {
     try {
@@ -300,9 +296,7 @@ public void notify(ChordMessageInterface j) throws RemoteException {
 	predecessor = j;
 }
 /*!
-\brief
-\param 
-\return 
+\brief fix the fingers (pointers)
 */
 public void fixFingers() {
     long id = guid;
@@ -324,9 +318,7 @@ public void fixFingers() {
     }
 }
 /*!
-\brief
-\param 
-\return 
+\brief	check the if predecesssor is empty
 */
 public void checkPredecessor() {
     try {
@@ -338,9 +330,9 @@ public void checkPredecessor() {
     }
 }
 /*!
-\brief
-\param 
-\return 
+\brief	func to create chord
+\param port	port of the chord
+\param guid	guid of the chord
 */
 public Chord(int port, long guid) throws RemoteException {
     int j;
@@ -371,9 +363,7 @@ public Chord(int port, long guid) throws RemoteException {
     }
 }
 /*!
-\brief
-\param 
-\return 
+\brief	print information of the node
 */
 void Print() {
     int i;

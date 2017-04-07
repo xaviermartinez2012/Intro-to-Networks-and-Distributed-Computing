@@ -4,8 +4,8 @@ import java.nio.*;
 
 /*****************************/
 /**
-* \brief 
-* 
+* \brief class for reading and writing
+* 	 files
 * 
 * 
 **********************************/
@@ -34,7 +34,7 @@ public FileStream(String pathName) throws FileNotFoundException,IOException    {
 /*****************************/
 /**
 * \brief empty constructor for 
-* 	filestream
+* 	 filestream
 * 
 **********************************/
 public FileStream() throws FileNotFoundException    {
@@ -43,7 +43,7 @@ public FileStream() throws FileNotFoundException    {
 
 /*****************************/
 /**
-* \brief  
+* \brief  read the file
 * 	
 * 
 **********************************/
@@ -54,7 +54,7 @@ public int read() throws IOException {
 }
 /*****************************/
 /**
-* \brief 
+* \brief used to check if file is available
 * 	
 * 
 **********************************/

@@ -150,7 +150,7 @@ public ChordUser(int p) {
 	}, 1000, 1000);
 }
 /*!
-\brief 
+\brief exit command
 \param args[] user input
 */
 static public void main(String args[]) {
