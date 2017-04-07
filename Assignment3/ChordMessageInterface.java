@@ -1,11 +1,13 @@
 import java.io.*;
 import java.rmi.*;
 
+/*****************************/
+/*
+* \brief 
+**********************************/
+
 public interface ChordMessageInterface extends Remote {
-/*!
-\brief get chord of User
-\return chord
-*/
+
 public ChordMessageInterface getPredecessor()  throws RemoteException;
 
 ChordMessageInterface locateSuccessor(long key) throws RemoteException;
@@ -27,10 +29,8 @@ public void setPredecessor(ChordMessageInterface p) throws RemoteException;
 public void cancelTimer() throws RemoteException;
 
 public void restartTimer() throws RemoteException;
-
-public void put(long guidObject, InputStream file) throws IOException, RemoteException;
-
+public void put(long guidObject, InputStream file) throws IOException,
+RemoteException;
 public InputStream get(long guidObject) throws IOException, RemoteException;
-
 public void delete(long guidObject) throws IOException, RemoteException;
 }
