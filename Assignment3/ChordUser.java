@@ -7,22 +7,24 @@ import java.security.*;
 import java.util.*;
 
 /*****************************/
+
 /**
-* \brief The functions for users 
-* Includes user joining/leaving of chord
-* and reading/writing of files
-* 
-**********************************/
+ * \brief The functions for users
+ * Includes user joining/leaving of chord
+ * and reading/writing of files
+ *
+ **********************************/
 public class ChordUser {
 int port;
 long guid;
 Chord chord;
 /*****************************/
+
 /**
-* \brief Functions for md5 which
-*	hashes the filename
-* 
-**********************************/
+ * \brief Functions for md5 which
+ *	hashes the filename
+ *
+ **********************************/
 private long md5(String objectName) {
     try {
 	MessageDigest m = MessageDigest.getInstance("MD5");
@@ -35,24 +37,27 @@ private long md5(String objectName) {
     }
     return 0;
 }
+
 /*!
-\brief return the guid of the user
-\return guid
-*/
+ * \brief return the guid of the user
+ * \return guid
+ */
 public long getGuid() {
     return guid;
 }
+
 /*!
-\brief get chord of User
-\return chord
-*/
+ * \brief get chord of User
+ * \return chord
+ */
 public Chord getChord() {
     return chord;
 }
+
 /*!
-\brief function to start program with desired port
-\param p port
-*/
+ * \brief function to start program with desired port
+ * \param p port
+ */
 public ChordUser(int p) {
     port = p;
 
@@ -149,10 +154,11 @@ public ChordUser(int p) {
 	    }
 	}, 1000, 1000);
 }
+
 /*!
-\brief exit command
-\param args[] user input
-*/
+ * \brief exit command
+ * \param args[] user input
+ */
 static public void main(String args[]) {
     if (args.length < 1)
 	throw new IllegalArgumentException("Parameter: <port>");
