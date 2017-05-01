@@ -18,6 +18,7 @@ public class ChordUser {
 int port;
 long guid;
 Chord chord;
+
 /*****************************/
 
 /**
@@ -103,13 +104,28 @@ public ChordUser(int p) {
 			    String path;
 			    String fileName = tokens[1];
 			    path = "./" + guid + "/" + fileName;
-			    long guidObject = md5(fileName);
+			    long guidObject1 = md5(fileName + "1");
+			    long guidObject2 = md5(fileName + "2");
+			    long guidObject3 = md5(fileName + "3");
 			    try {
-				FileStream file = new FileStream(
+					// File 1
+				FileStream file1 = new FileStream(
 					path);
-				ChordMessageInterface peer =
-				    chord.locateSuccessor(guidObject);
-				peer.put(guidObject, file);	// put file into ring
+				ChordMessageInterface peer1 =
+				    chord.locateSuccessor(guidObject1);
+				peer1.put(guidObject1, file1);	// put file into ring
+				// File 2
+				FileStream file2 = new FileStream(
+					path);
+				ChordMessageInterface peer2 =
+				    chord.locateSuccessor(guidObject2);
+				peer2.put(guidObject2, file2);	// put file into ring
+				// File 3
+				FileStream file3 = new FileStream(
+					path);
+				ChordMessageInterface peer3 =
+				    chord.locateSuccessor(guidObject3);
+				peer3.put(guidObject3, file3);	// put file into ring
 			    } catch (IOException e) {
 				e.printStackTrace();
 			    }
@@ -118,12 +134,81 @@ public ChordUser(int p) {
 			    String path;
 			    String fileName = tokens[1];
 			    path = "./" + guid + "/" + fileName;
-			    long guidObject = md5(
-				    fileName);
+			    long guidObject1 = md5(fileName + "1");
+			    long guidObject2 = md5(fileName + "2");
+			    long guidObject3 = md5(fileName + "3");
 			    try {
-				ChordMessageInterface peer =
-				    chord.locateSuccessor(guidObject);
-				InputStream stream = peer.get(guidObject);
+				ChordMessageInterface peer1 =
+				    chord.locateSuccessor(guidObject1);
+				ChordMessageInterface peer2 =
+				    chord.locateSuccessor(guidObject2);
+				ChordMessageInterface peer3 =
+				    chord.locateSuccessor(guidObject3);
+
+				boolean skip = false;
+				int cwHops = 0;
+				int ccwHops = 0;
+				long closestCWPeer = 0;
+				long closestCCWPeer = 0;
+				long closestPeer = 0;
+				ChordMessageInterface currentPeer = chord.successor;
+				long currentGUID = currentPeer.getId();
+				if (peer1.getId() == guid) {
+				    skip = true;
+				    closestPeer = peer1.getId();
+				} else if (peer2.getId() == guid) {
+				    skip = true;
+				    closestPeer = peer2.getId();
+				} else if (peer3.getId() == guid) {
+				    skip = true;
+				    closestPeer = peer3.getId();
+				}
+					// Clockwise measurement
+				while (currentGUID != guid && !skip) {
+				    cwHops++;
+				    if (currentGUID == peer1.getId()) {
+					closestCWPeer = currentGUID;
+					break;
+				    } else if (currentGUID == peer2.getId()) {
+					closestCWPeer = currentGUID;
+					break;
+				    } else if (currentGUID == peer3.getId()) {
+					closestCWPeer = currentGUID;
+					break;
+				    } else {
+					currentPeer = currentPeer.locateSuccessor(currentGUID);
+					currentGUID = currentPeer.getId();
+				    }
+				}
+				if (cwHops == 1) {
+				    closestPeer = closestCWPeer;
+				    skip = true;
+				}
+				currentPeer = chord.predecessor;
+				currentGUID = currentPeer.getId();
+				while (currentGUID != guid && !skip) {
+				    ccwHops++;
+				    if (currentGUID == peer1.getId()) {
+					closestCCWPeer = currentGUID;
+					break;
+				    } else if (currentGUID == peer2.getId()) {
+					closestCCWPeer = currentGUID;
+					break;
+				    } else if (currentGUID == peer3.getId()) {
+					closestCCWPeer = currentGUID;
+					break;
+				    } else {
+					currentPeer = currentPeer.getPredecessor();
+					currentGUID = currentPeer.getId();
+				    }
+				}
+				if ((cwHops == ccwHops) && !skip)
+				    closestPeer = closestCWPeer;
+				else if ((cwHops < ccwHops) && !skip)
+				    closestPeer = closestCWPeer;
+				else if ((ccwHops < cwHops) && !skip)
+				    closestPeer = closestCCWPeer;
+				InputStream stream = peer.get(closestPeer);
 				FileOutputStream output =
 				    new FileOutputStream(path);
 				while (stream.available() > 0)
