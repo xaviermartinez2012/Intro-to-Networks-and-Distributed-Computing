@@ -6,6 +6,10 @@ import java.rmi.*;
  */
 
 public interface ChordMessageInterface extends Remote {
+
+public Date getLastWritten(Long guid);
+
+public boolean canCommit(Long guid, Date userLastRead);
 /*!
  * \brief gets the prefedd
  * \return the predecessor

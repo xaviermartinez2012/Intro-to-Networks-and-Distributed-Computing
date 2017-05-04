@@ -24,7 +24,32 @@ ChordMessageInterface predecessor;
 ChordMessageInterface[] finger;
 int nextFinger;
 long guid;				// GUID (i)
+Hashtable<Long, Date> lastWritten;
+Hashtable<Long, Boolean> fileBusy;
 Timer timer;
+
+public Date getLastWritten(Long guid) {
+    Date written;
+
+    if (lastWritten.contains(guid)) {
+	written = lastWritten.get(guid);
+    } else {
+	// Subtract an hour from current time if the object
+	written = new Date(System.currentTimeMillis() - 3600 * 1000);
+    }
+    return lastWritten.get(key);
+}
+
+public boolean canCommit(Long guid, Date userLastRead) {
+    boolean	vote = false;
+    Date	written = getLastWritten(guid);
+
+    if (!fileBusy.contains(guid))
+	fileBusy.put(guid, false);
+    if ((written < userLastRead) && !fileBusy.get(guid))
+	vote = true;
+    return vote;
+}
 
 /*!
  * \brief create an chord between user
@@ -336,7 +361,7 @@ public void fixFingers() {
 }
 
 /*!
- * \brief	check the if predecesssor is empty
+ * \brief check the if predecesssor is empty
  */
 public void checkPredecessor() {
     try {
@@ -360,7 +385,8 @@ public Chord(int port, long guid) throws RemoteException {
     for (j = 0; j < M; j++)
 	finger[j] = null;
     this.guid = guid;
-
+    lastWritten = new Hashtable<Long, Date>();
+    fileBusy = new Hashtable<Long, Boolean>();
     predecessor = null;
     successor = this;
     this.timer = new Timer();
