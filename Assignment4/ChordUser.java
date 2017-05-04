@@ -17,6 +17,7 @@ import java.util.*;
 public class ChordUser {
 int port;
 long guid;
+Hashtable<Long, Date> lastRead;
 Chord chord;
 /*****************************/
 
@@ -104,6 +105,37 @@ public ChordUser(int p) {
 			    String fileName = tokens[1];
 			    path = "./" + guid + "/" + fileName;
 			    long guidObject = md5(fileName);
+			    long guidObject1 = md5(fileName + "1");
+			    long guidObject2 = md5(fileName + "2");
+			    long guidObject3 = md5(fileName + "3");
+			    ChordMessageInterface peer1 =
+				chord.locateSuccessor(guidObject);
+			    ChordMessageInterface peer2 =
+				chord.locateSuccessor(guidObject);
+			    ChordMessageInterface peer3 =
+				chord.locateSuccessor(guidObject);
+			    Date localLastRead;
+			    if (lastRead.contains(guidObject))
+				localLastRead = lastRead.get(guidObject);
+			    else
+				localLastRead = new Date(System.currentTimeMillis());
+			    if (peer1.canCommit(guidObject1, localLastRead)) {
+				if (peer2.canCommit(guidObject2, localLastRead)) {
+				    if (peer3.canCommit(guidObject3, localLastRead)) {
+					/*
+					 * To-do commit file:
+					 * - update last written (server-side),
+					 * - unlock file (server-side),
+					 * - update lastRead (client-side)
+					 */
+				    } else {
+					// peer2.abort();
+					// peer1.abort();
+				    }
+				} else {
+					// peer1.abort();
+				}
+			    }
 			    try {
 				FileStream file = new FileStream(
 					path);
