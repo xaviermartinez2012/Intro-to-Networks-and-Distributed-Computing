@@ -42,8 +42,12 @@ public Date getLastWritten(Long guid) {
 }
 
 public void transferKey(Long guid, Date log) {
-	lastWritten.put(guid, log);
-	fileBusy.put(guid, false);
+    lastWritten.put(guid, log);
+    fileBusy.put(guid, false);
+}
+
+public boolean fileExists(Long guid) {
+    return lastWritten.containsKey(guid);
 }
 
 public boolean canCommit(Long guid, Date userLastRead) {
@@ -52,7 +56,7 @@ public boolean canCommit(Long guid, Date userLastRead) {
 
     if (!fileBusy.containsKey(guid))
 	fileBusy.put(guid, false);
-    if ((written.before(userLastRead) || written.equals(userLastRead))&& !fileBusy.get(guid)) {
+    if ((written.before(userLastRead) || written.equals(userLastRead)) && !fileBusy.get(guid)) {
 	vote = true;
 	fileBusy.replace(guid, true);
     }
@@ -64,8 +68,8 @@ public void abort(Long guid) {
 }
 
 public void commit(Long guid, Date write) {
-	lastWritten.replace(guid, write);
-	fileBusy.replace(guid, false);
+    lastWritten.replace(guid, write);
+    fileBusy.replace(guid, false);
 }
 
 /*!
@@ -330,14 +334,14 @@ public void stabilize() {
 		String fileName = file.getName();
 		if (fileName.startsWith("."))
 		    continue;
-		long	fileGuid = Long.parseLong(fileName);
+		long			fileGuid = Long.parseLong(fileName);
 		ChordMessageInterface	peer = locateSuccessor(fileGuid);
-		long destinationGUID = peer.getId();
+		long			destinationGUID = peer.getId();
 		if (destinationGUID == guid)
 		    continue;
 		peer.transferKey(fileGuid, getLastWritten(fileGuid));
 		file.renameTo(new File(
-			"./" +  destinationGUID + "/repository/" + fileName));
+			"./" + destinationGUID + "/repository/" + fileName));
 	    }
 	}
     } catch (RemoteException | NullPointerException e1) {
