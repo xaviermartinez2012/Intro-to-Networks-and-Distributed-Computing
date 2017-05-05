@@ -61,8 +61,8 @@ public Chord getChord() {
  */
 public ChordUser(int p) {
     port = p;
-
-    Timer timer1 = new Timer();
+	lastRead = new Hashtable<Long, Date>();
+	Timer timer1 = new Timer();
     timer1.scheduleAtFixedRate(new TimerTask() {
 	    @Override
 	    public void run() {
@@ -115,10 +115,13 @@ public ChordUser(int p) {
 			    ChordMessageInterface peer3 =
 				chord.locateSuccessor(guidObject);
 			    Date localLastRead;
-			    if (lastRead.contains(guidObject))
+			    if (lastRead.containsKey(guidObject))
 				localLastRead = lastRead.get(guidObject);
-			    else
+			    else {
 				localLastRead = new Date(System.currentTimeMillis());
+				lastRead.put(guidObject, localLastRead);
+			}
+				System.out.println("-- Opening transaction on \"" + fileName + "\"");
 			    if (peer1.canCommit(guidObject1, localLastRead)) {
 				if (peer2.canCommit(guidObject2, localLastRead)) {
 				    if (peer3.canCommit(guidObject3, localLastRead)) {
@@ -128,23 +131,33 @@ public ChordUser(int p) {
 					 * - unlock file (server-side),
 					 * - update lastRead (client-side)
 					 */
+					try {
+					FileStream file = new FileStream(
+						path);
+					Date read = new Date(System.currentTimeMillis());
+					peer1.put(guidObject1, file);
+					peer1.commit(guidObject1, read);
+					peer2.put(guidObject2, file);
+					peer2.commit(guidObject2, read);
+					peer3.put(guidObject3, file);
+					peer3.commit(guidObject3, read);
+					lastRead.replace(guidObject, read);
+					System.out.println("-- \"" + fileName + "\" committed on " + read.toString());
+					} catch (IOException e) {
+					e.printStackTrace();
+					}
 				    } else {
-					// peer2.abort();
-					// peer1.abort();
+						System.out.println("-- ERROR: Peer3 rejected commit request. Aborting transaction...");
+						peer2.abort(guidObject2);
+						peer1.abort(guidObject1);
 				    }
 				} else {
-					// peer1.abort();
+					System.out.println("-- ERROR: Peer2 rejected commit request. Aborting transaction...");
+					peer1.abort(guidObject1);
 				}
-			    }
-			    try {
-				FileStream file = new FileStream(
-					path);
-				ChordMessageInterface peer =
-				    chord.locateSuccessor(guidObject);
-				peer.put(guidObject, file);	// put file into ring
-			    } catch (IOException e) {
-				e.printStackTrace();
-			    }
+			    } else {
+					System.out.println("-- ERROR: Peer1 rejected commit request. Aborting transaction...");
+				}
 			}
 			if (tokens[0].equals("read") && (tokens.length == 2)) {
 			    String path;
@@ -152,15 +165,22 @@ public ChordUser(int p) {
 			    path = "./" + guid + "/" + fileName;
 			    long guidObject = md5(
 				    fileName);
+					long guidObject1 = md5(fileName + "1");
 			    try {
 				ChordMessageInterface peer =
-				    chord.locateSuccessor(guidObject);
-				InputStream stream = peer.get(guidObject);
+				    chord.locateSuccessor(guidObject1);
+				InputStream stream = peer.get(guidObject1);
 				FileOutputStream output =
 				    new FileOutputStream(path);
 				while (stream.available() > 0)
 				    output.write(stream.read());
 				output.close();
+				Date read = new Date(System.currentTimeMillis());
+				if (lastRead.containsKey(guidObject)) {
+					lastRead.replace(guidObject, read);
+				} else {
+					lastRead.put(guidObject, read);
+				}
 			    } catch (IOException e) {
 				e.printStackTrace();
 			    }
@@ -206,9 +226,16 @@ static public void main(String args[]) {
 			if (chord.successor.getId() != guid) {
 			    File folder = new File("./" + guid + "/repository");
 			    File[] files = folder.listFiles();
-			    for (File file: files)
+			    for (File file: files) {
+				String fileName = file.getName();
+				if (fileName.startsWith("."))
+					continue;
+				Long fileGUID = Long.parseLong(fileName);
+				ChordMessageInterface peer = chord.successor;
+				peer.transferKey(fileGUID, chord.getLastWritten(fileGUID));
 				file.renameTo(new File(
-					"./" + chord.successor.getId() + "/repository/" + file.getName()));
+					"./" + peer.getId() + "/repository/" + fileName));
+				}
 			    chord.cancelTimer();
 			    chord.successor.setPredecessor(chord.predecessor);
 			    chord.predecessor.setSuccessor(chord.successor);
