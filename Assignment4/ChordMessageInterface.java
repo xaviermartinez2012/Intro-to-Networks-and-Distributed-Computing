@@ -1,15 +1,24 @@
 import java.io.*;
 import java.rmi.*;
+import java.util.*;
 
 /*!
  * \brief Defines the chord functionality.
  */
 
 public interface ChordMessageInterface extends Remote {
+public Date getLastWritten(Long guid) throws RemoteException;
 
-public Date getLastWritten(Long guid);
+public void transferKey(Long guid, Date log) throws RemoteException;
 
-public boolean canCommit(Long guid, Date userLastRead);
+public boolean fileExists(Long guid) throws RemoteException;
+
+public boolean canCommit(Long guid, Date userLastRead) throws RemoteException;
+
+public void commit(Long guid, Date write) throws RemoteException;
+
+public void abort(Long guid) throws RemoteException;
+
 /*!
  * \brief gets the prefedd
  * \return the predecessor

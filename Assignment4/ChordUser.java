@@ -61,7 +61,7 @@ public Chord getChord() {
  */
 public ChordUser(int p) {
     port = p;
-
+    lastRead = new Hashtable<Long, Date>();
     Timer timer1 = new Timer();
     timer1.scheduleAtFixedRate(new TimerTask() {
 	    @Override
@@ -104,46 +104,72 @@ public ChordUser(int p) {
 			    String path;
 			    String fileName = tokens[1];
 			    path = "./" + guid + "/" + fileName;
-			    long guidObject = md5(fileName);
-			    long guidObject1 = md5(fileName + "1");
-			    long guidObject2 = md5(fileName + "2");
-			    long guidObject3 = md5(fileName + "3");
-			    ChordMessageInterface peer1 =
-				chord.locateSuccessor(guidObject);
-			    ChordMessageInterface peer2 =
-				chord.locateSuccessor(guidObject);
-			    ChordMessageInterface peer3 =
-				chord.locateSuccessor(guidObject);
-			    Date localLastRead;
-			    if (lastRead.contains(guidObject))
-				localLastRead = lastRead.get(guidObject);
-			    else
-				localLastRead = new Date(System.currentTimeMillis());
-			    if (peer1.canCommit(guidObject1, localLastRead)) {
-				if (peer2.canCommit(guidObject2, localLastRead)) {
-				    if (peer3.canCommit(guidObject3, localLastRead)) {
-					/*
-					 * To-do commit file:
-					 * - update last written (server-side),
-					 * - unlock file (server-side),
-					 * - update lastRead (client-side)
-					 */
-				    } else {
-					// peer2.abort();
-					// peer1.abort();
-				    }
+			    File f = new File(path);
+			    if (f.exists()) {
+				long guidObject = md5(fileName);
+				long guidObject1 = md5(fileName + "1");
+				long guidObject2 = md5(fileName + "2");
+				long guidObject3 = md5(fileName + "3");
+				ChordMessageInterface peer1 =
+				    chord.locateSuccessor(guidObject1);
+				ChordMessageInterface peer2 =
+				    chord.locateSuccessor(guidObject2);
+				ChordMessageInterface peer3 =
+				    chord.locateSuccessor(guidObject3);
+				Date localLastRead = new Date(System.currentTimeMillis());
+				boolean noHistory = false;
+				if (lastRead.containsKey(guidObject)) {
+				    localLastRead = lastRead.get(guidObject);
 				} else {
-					// peer1.abort();
+				    if (peer1.fileExists(guidObject1) || peer2.fileExists(guidObject2) ||
+					peer3.fileExists(guidObject3))
+					noHistory = true;
 				}
-			    }
-			    try {
-				FileStream file = new FileStream(
-					path);
-				ChordMessageInterface peer =
-				    chord.locateSuccessor(guidObject);
-				peer.put(guidObject, file);	// put file into ring
-			    } catch (IOException e) {
-				e.printStackTrace();
+				if (noHistory) {
+				    System.out.println(
+					"-- ERROR: Conflict due to no \"lastRead\" history! Please read the latest version of \""
+					+
+					fileName + "\" and try again.");
+				} else {
+				    System.out.println("-- Opening transaction on \"" + fileName + "\"");
+				    if (peer1.canCommit(guidObject1, localLastRead)) {
+					if (peer2.canCommit(guidObject2, localLastRead)) {
+					    if (peer3.canCommit(guidObject3, localLastRead)) {
+						try {
+						    FileStream file = new FileStream(
+							    path);
+						    Date read = new Date(System.currentTimeMillis());
+						    peer1.put(guidObject1, file);
+						    peer1.commit(guidObject1, read);
+						    peer2.put(guidObject2, file);
+						    peer2.commit(guidObject2, read);
+						    peer3.put(guidObject3, file);
+						    peer3.commit(guidObject3, read);
+						    lastRead.replace(guidObject, read);
+						    lastRead.put(guidObject, read);
+						    System.out.println("-- \"" + fileName + "\" committed on " +
+							read.toString());
+						} catch (IOException e) {
+						    e.printStackTrace();
+						}
+					    } else {
+						System.out.println(
+						    "-- ERROR: Peer3 rejected commit request. Aborting transaction...");
+						peer2.abort(guidObject2);
+						peer1.abort(guidObject1);
+					    }
+					} else {
+					    System.out.println(
+						"-- ERROR: Peer2 rejected commit request. Aborting transaction...");
+					    peer1.abort(guidObject1);
+					}
+				    } else {
+					System.out.println(
+					    "-- ERROR: Peer1 rejected commit request. Aborting transaction...");
+				    }
+				}
+			    } else {
+				System.out.println("-- ERROR: \"" + fileName + "\" does not exist!");
 			    }
 			}
 			if (tokens[0].equals("read") && (tokens.length == 2)) {
@@ -152,15 +178,21 @@ public ChordUser(int p) {
 			    path = "./" + guid + "/" + fileName;
 			    long guidObject = md5(
 				    fileName);
+			    long guidObject1 = md5(fileName + "1");
 			    try {
 				ChordMessageInterface peer =
-				    chord.locateSuccessor(guidObject);
-				InputStream stream = peer.get(guidObject);
+				    chord.locateSuccessor(guidObject1);
+				InputStream stream = peer.get(guidObject1);
 				FileOutputStream output =
 				    new FileOutputStream(path);
 				while (stream.available() > 0)
 				    output.write(stream.read());
 				output.close();
+				Date read = new Date(System.currentTimeMillis());
+				if (lastRead.containsKey(guidObject))
+				    lastRead.replace(guidObject, read);
+				else
+				    lastRead.put(guidObject, read);
 			    } catch (IOException e) {
 				e.printStackTrace();
 			    }
@@ -206,9 +238,16 @@ static public void main(String args[]) {
 			if (chord.successor.getId() != guid) {
 			    File folder = new File("./" + guid + "/repository");
 			    File[] files = folder.listFiles();
-			    for (File file: files)
+			    for (File file: files) {
+				String fileName = file.getName();
+				if (fileName.startsWith("."))
+				    continue;
+				Long fileGUID = Long.parseLong(fileName);
+				ChordMessageInterface peer = chord.successor;
+				peer.transferKey(fileGUID, chord.getLastWritten(fileGUID));
 				file.renameTo(new File(
-					"./" + chord.successor.getId() + "/repository/" + file.getName()));
+					"./" + peer.getId() + "/repository/" + fileName));
+			    }
 			    chord.cancelTimer();
 			    chord.successor.setPredecessor(chord.predecessor);
 			    chord.predecessor.setSuccessor(chord.successor);

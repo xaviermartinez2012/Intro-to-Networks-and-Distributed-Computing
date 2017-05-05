@@ -31,24 +31,45 @@ Timer timer;
 public Date getLastWritten(Long guid) {
     Date written;
 
-    if (lastWritten.contains(guid)) {
+    if (lastWritten.containsKey(guid)) {
 	written = lastWritten.get(guid);
     } else {
-	// Subtract an hour from current time if the object
+	// Subtract an hour from current time of the object
 	written = new Date(System.currentTimeMillis() - 3600 * 1000);
+	lastWritten.put(guid, written);
     }
-    return lastWritten.get(key);
+    return lastWritten.get(guid);
+}
+
+public void transferKey(Long guid, Date log) {
+    lastWritten.put(guid, log);
+    fileBusy.put(guid, false);
+}
+
+public boolean fileExists(Long guid) {
+    return lastWritten.containsKey(guid);
 }
 
 public boolean canCommit(Long guid, Date userLastRead) {
     boolean	vote = false;
     Date	written = getLastWritten(guid);
 
-    if (!fileBusy.contains(guid))
+    if (!fileBusy.containsKey(guid))
 	fileBusy.put(guid, false);
-    if ((written < userLastRead) && !fileBusy.get(guid))
+    if ((written.before(userLastRead) || written.equals(userLastRead)) && !fileBusy.get(guid)) {
 	vote = true;
+	fileBusy.replace(guid, true);
+    }
     return vote;
+}
+
+public void abort(Long guid) {
+    fileBusy.replace(guid, false);
+}
+
+public void commit(Long guid, Date write) {
+    lastWritten.replace(guid, write);
+    fileBusy.replace(guid, false);
 }
 
 /*!
@@ -311,14 +332,16 @@ public void stabilize() {
 	    File[]	files = folder.listFiles();
 	    for (File file: files) {
 		String fileName = file.getName();
-		if (fileName.contains("."))
+		if (fileName.startsWith("."))
 		    continue;
-		long	fileGuid = Long.parseLong(fileName);
-		long	destinationGuid = locateSuccessor(fileGuid).getId();
-		if (destinationGuid == guid)
+		long			fileGuid = Long.parseLong(fileName);
+		ChordMessageInterface	peer = locateSuccessor(fileGuid);
+		long			destinationGUID = peer.getId();
+		if (destinationGUID == guid)
 		    continue;
+		peer.transferKey(fileGuid, getLastWritten(fileGuid));
 		file.renameTo(new File(
-			"./" + destinationGuid + "/repository/" + fileName));
+			"./" + destinationGUID + "/repository/" + fileName));
 	    }
 	}
     } catch (RemoteException | NullPointerException e1) {
