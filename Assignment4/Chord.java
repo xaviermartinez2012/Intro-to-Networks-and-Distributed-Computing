@@ -214,8 +214,10 @@ public void delete(long guidObject) throws RemoteException {
     try {
 	Path fileName = Paths.get("./" + guid + "/repository/" + guidObject);
 	Files.delete(fileName);
+	lastWritten.remove(guidObject);
+	fileBusy.remove(guidObject);
     } catch (NoSuchFileException x) {
-	throw (new RemoteException("-- ERROR: The file specified does no exist!"));
+	throw (new RemoteException("-- ERROR: The file specified does not exist!"));
     } catch (IOException x) {
 	throw (new RemoteException("-- ERROR: IO Exception"));
     }
