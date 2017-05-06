@@ -211,13 +211,13 @@ public ChordUser(int p) {
 			    try {
 				ChordMessageInterface peer1 =
 				    chord.locateSuccessor(guidObject1);
-				peer.delete(guidObject1);
+				peer1.delete(guidObject1);
 				ChordMessageInterface peer2 =
 				    chord.locateSuccessor(guidObject2);
-				peer.delete(guidObject2);
+				peer2.delete(guidObject2);
 				ChordMessageInterface peer3 =
 				    chord.locateSuccessor(guidObject3);
-				peer.delete(guidObject3);
+				peer3.delete(guidObject3);
 				if (lastRead.containsKey(guidObject))
 				    lastRead.remove(guidObject);
 			    } catch (IOException e) {
