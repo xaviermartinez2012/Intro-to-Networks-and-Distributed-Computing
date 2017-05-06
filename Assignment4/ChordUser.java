@@ -150,7 +150,7 @@ public ChordUser(int p) {
 						    System.out.println("-- \"" + fileName + "\" committed on " +
 							read.toString());
 						} catch (IOException e) {
-						    e.printStackTrace();
+						    System.out.println(e);
 						}
 					    } else {
 						System.out.println(
@@ -194,7 +194,7 @@ public ChordUser(int p) {
 				else
 				    lastRead.put(guidObject, read);
 			    } catch (IOException e) {
-				e.printStackTrace();
+				System.out.println(e);
 				lastRead.remove(guidObject);
 			    }
 			}
@@ -221,7 +221,7 @@ public ChordUser(int p) {
 				if (lastRead.containsKey(guidObject))
 				    lastRead.remove(guidObject);
 			    } catch (IOException e) {
-				e.printStackTrace();
+				System.out.println(e);
 			    }
 			}
 			if (tokens[0].equals("leave") && (tokens.length == 1))
