@@ -28,6 +28,12 @@ Hashtable<Long, Date> lastWritten;
 Hashtable<Long, Boolean> fileBusy;
 Timer timer;
 
+
+/*!
+ * \brief get the last written time of an file
+ * \param guid guid of the file
+ * \return time of the last written 
+ */
 public Date getLastWritten(Long guid) {
     Date written;
 
@@ -41,15 +47,31 @@ public Date getLastWritten(Long guid) {
     return lastWritten.get(guid);
 }
 
+/*!
+ * \brief add values/state to the HashMaps
+ * \param ip ip of the other user
+ * \param port of other user
+ * \return the chord
+ */
 public void transferKey(Long guid, Date log) {
     lastWritten.put(guid, log);
     fileBusy.put(guid, false);
 }
-
+/*!
+ * \brief check if file exists
+ * \param guid guid of the file
+ * \return true if file exists/false if it does not
+ */
 public boolean fileExists(Long guid) {
     return lastWritten.containsKey(guid);
 }
 
+/*!
+ * \brief check if file can be committed
+ * \param guid guid of the file
+ * \param Date the last date/time the user read the file
+ * \return true if file can commit/false if it can not
+ */
 public boolean canCommit(Long guid, Date userLastRead) {
     boolean	vote = false;
     Date	written = getLastWritten(guid);
@@ -63,10 +85,19 @@ public boolean canCommit(Long guid, Date userLastRead) {
     return vote;
 }
 
+/*!
+ * \brief abort the commit
+ * \param guid guid of the file
+ */
 public void abort(Long guid) {
     fileBusy.replace(guid, false);
 }
 
+/*!
+ * \brief commit the file
+ * \param guid guid of the file
+ * \param Date the date/time that the commit occurs
+ */
 public void commit(Long guid, Date write) {
     lastWritten.replace(guid, write);
     fileBusy.replace(guid, false);
@@ -214,8 +245,10 @@ public void delete(long guidObject) throws RemoteException {
     try {
 	Path fileName = Paths.get("./" + guid + "/repository/" + guidObject);
 	Files.delete(fileName);
+	lastWritten.remove(guidObject);
+	fileBusy.remove(guidObject);
     } catch (NoSuchFileException x) {
-	throw (new RemoteException("-- ERROR: The file specified does no exist!"));
+	throw (new RemoteException("-- ERROR: The file specified does not exist!"));
     } catch (IOException x) {
 	throw (new RemoteException("-- ERROR: IO Exception"));
     }

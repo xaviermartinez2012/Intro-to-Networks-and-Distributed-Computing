@@ -150,7 +150,7 @@ public ChordUser(int p) {
 						    System.out.println("-- \"" + fileName + "\" committed on " +
 							read.toString());
 						} catch (IOException e) {
-						    e.printStackTrace();
+						    System.out.println(e);
 						}
 					    } else {
 						System.out.println(
@@ -194,19 +194,34 @@ public ChordUser(int p) {
 				else
 				    lastRead.put(guidObject, read);
 			    } catch (IOException e) {
-				e.printStackTrace();
+				System.out.println(e);
+				lastRead.remove(guidObject);
 			    }
 			}
 			if (tokens[0].equals("delete") && (tokens.length == 2)) {
 			    String fileName = tokens[1];
 			    long guidObject = md5(
 				    fileName);
+			    long guidObject1 = md5(
+				    fileName + "1");
+			    long guidObject2 = md5(
+				    fileName + "2");
+			    long guidObject3 = md5(
+				    fileName + "3");
 			    try {
-				ChordMessageInterface peer =
-				    chord.locateSuccessor(guidObject);
-				peer.delete(guidObject);
+				ChordMessageInterface peer1 =
+				    chord.locateSuccessor(guidObject1);
+				peer1.delete(guidObject1);
+				ChordMessageInterface peer2 =
+				    chord.locateSuccessor(guidObject2);
+				peer2.delete(guidObject2);
+				ChordMessageInterface peer3 =
+				    chord.locateSuccessor(guidObject3);
+				peer3.delete(guidObject3);
+				if (lastRead.containsKey(guidObject))
+				    lastRead.remove(guidObject);
 			    } catch (IOException e) {
-				e.printStackTrace();
+				System.out.println(e);
 			    }
 			}
 			if (tokens[0].equals("leave") && (tokens.length == 1))
