@@ -48,7 +48,7 @@ public Date getLastWritten(Long guid) {
 }
 
 /*!
- * \brief transfer the key from lastWritten Hashmap to fileBusy Hashmap
+ * \brief add values/state to the HashMaps
  * \param ip ip of the other user
  * \param port of other user
  * \return the chord
