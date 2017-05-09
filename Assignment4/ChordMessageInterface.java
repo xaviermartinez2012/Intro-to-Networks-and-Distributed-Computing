@@ -10,9 +10,10 @@ public interface ChordMessageInterface extends Remote {
 /*!
  * \brief get the last written time of an file
  * \param guid guid of the file
- * \return time of the last written 
+ * \return time of the last written
  */
 public Date getLastWritten(Long guid) throws RemoteException;
+
 /*!
  * \brief transfer the key from lastWritten Hashmap to fileBusy Hashmap
  * \param ip ip of the other user
@@ -20,12 +21,14 @@ public Date getLastWritten(Long guid) throws RemoteException;
  * \return the chord
  */
 public void transferKey(Long guid, Date log) throws RemoteException;
+
 /*!
  * \brief check if file exists
  * \param guid guid of the file
  * \return true if file exists/false if it does not
  */
 public boolean fileExists(Long guid) throws RemoteException;
+
 /*!
  * \brief check if file can be committed
  * \param guid guid of the file
@@ -33,12 +36,14 @@ public boolean fileExists(Long guid) throws RemoteException;
  * \return true if file can commit/false if it can not
  */
 public boolean canCommit(Long guid, Date userLastRead) throws RemoteException;
+
 /*!
  * \brief commit the file
  * \param guid guid of the file
  * \param Date the date/time that the commit occurs
  */
 public void commit(Long guid, Date write) throws RemoteException;
+
 /*!
  * \brief abort the commit
  * \param guid guid of the file

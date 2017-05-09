@@ -28,11 +28,10 @@ Hashtable<Long, Date> lastWritten;
 Hashtable<Long, Boolean> fileBusy;
 Timer timer;
 
-
 /*!
  * \brief get the last written time of an file
  * \param guid guid of the file
- * \return time of the last written 
+ * \return time of the last written
  */
 public Date getLastWritten(Long guid) {
     Date written;
@@ -57,6 +56,7 @@ public void transferKey(Long guid, Date log) {
     lastWritten.put(guid, log);
     fileBusy.put(guid, false);
 }
+
 /*!
  * \brief check if file exists
  * \param guid guid of the file
